@@ -1,17 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { motion, AnimatePresence } from 'framer-motion';
 import { logout, getCurrentUser } from '../services/auth.service';
 import { getApplications, updateApplication, deleteApplication } from '../services/application.service';
 import type { Application } from '../services/application.service';
 import AddApplicationModal from '../components/AddApplicationModal';
+import EditApplicationModal from '../components/EditApplicationModal';
+import ApplicationChart from '../components/ApplicationChart';
+import QuotesPanel from '../components/QuotesPanel';
+import StatsCards from '../components/StatsCards';
+import { Download, Sun, Moon, Sparkles, Plus, Search, LogOut, ChevronDown, Calendar, Filter, X, HelpCircle, Edit3 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import KanbanTour from '../components/KanbanTour';
+
+const jobTitles = [
+  "Frontend Developer", "Full Stack Engineer", "Data Scientist", 
+  "Product Manager", "UI/UX Designer", "DevOps Engineer",
+  "Backend Developer", "ML Engineer", "Software Architect",
+  "iOS Developer", "Android Developer", "Cloud Engineer"
+];
 
 const columns = [
-  { id: 'applied', title: 'Applied', color: 'bg-blue-500' },
-  { id: 'phone-screen', title: 'Phone Screen', color: 'bg-yellow-500' },
-  { id: 'interview', title: 'Interview', color: 'bg-purple-500' },
-  { id: 'offer', title: 'Offer', color: 'bg-green-500' },
-  { id: 'rejected', title: 'Rejected', color: 'bg-red-500' },
+  { id: 'applied', title: 'Applied', color: 'text-indigo-600 dark:text-indigo-400', hoverColor: 'hover:text-indigo-700 dark:hover:text-indigo-300' },
+  { id: 'phone-screen', title: 'Phone Screen', color: 'text-amber-600 dark:text-amber-400', hoverColor: 'hover:text-amber-700 dark:hover:text-amber-300' },
+  { id: 'interview', title: 'Interview', color: 'text-purple-600 dark:text-purple-400', hoverColor: 'hover:text-purple-700 dark:hover:text-purple-300' },
+  { id: 'offer', title: 'Offer', color: 'text-emerald-600 dark:text-emerald-400', hoverColor: 'hover:text-emerald-700 dark:hover:text-emerald-300' },
+  { id: 'rejected', title: 'Rejected', color: 'text-rose-600 dark:text-rose-400', hoverColor: 'hover:text-rose-700 dark:hover:text-rose-300' },
 ];
 
 export default function Dashboard() {
@@ -19,11 +34,33 @@ export default function Dashboard() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState<'all' | 'week' | 'month' | 'year'>('all');
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+  const [celebration, setCelebration] = useState<{ show: boolean; company: string; role: string }>({ show: false, company: '', role: '' });
+  
+  const kanbanRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const { theme, toggleTheme } = useTheme();
   const user = getCurrentUser();
 
   useEffect(() => {
     fetchApplications();
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      const hasSeenTour = localStorage.getItem('kanbanTourCompleted');
+      if (!hasSeenTour) {
+        setTimeout(() => setShowTour(true), 500);
+      }
+    }
+  }, [loading]);
 
   const fetchApplications = async () => {
     try {
@@ -38,23 +75,23 @@ export default function Dashboard() {
 
   const handleDragEnd = async (result: any) => {
     if (!result.destination) return;
-    
     const { draggableId, destination } = result;
     const newStatus = destination.droppableId;
+    const movedApp = applications.find(app => app._id === draggableId);
     
-    // Update local state
-    setApplications(prev =>
-      prev.map(app =>
-        app._id === draggableId ? { ...app, status: newStatus } : app
-      )
-    );
+    setApplications(prev => prev.map(app => app._id === draggableId ? { ...app, status: newStatus } : app));
     
-    // Update backend
+    // Celebration effect when moved to Offer
+    if (newStatus === 'offer' && movedApp && movedApp.status !== 'offer') {
+      setCelebration({ show: true, company: movedApp.company, role: movedApp.role });
+      setTimeout(() => setCelebration({ show: false, company: '', role: '' }), 4000);
+    }
+    
     try {
       await updateApplication(draggableId, { status: newStatus });
     } catch (error) {
       console.error('Failed to update status:', error);
-      fetchApplications(); // Revert on error
+      fetchApplications();
     }
   };
 
@@ -69,111 +106,441 @@ export default function Dashboard() {
     }
   };
 
+  const handleCardClick = (app: Application) => {
+    setSelectedApplication(app);
+    setIsEditModalOpen(true);
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const getApplicationsByStatus = (status: string) => {
-    return applications.filter(app => app.status === status);
+  const exportToCSV = () => {
+    const headers = ['Company', 'Role', 'Status', 'Date Applied', 'Notes', 'Salary Range'];
+    const rows = applications.map(app => [
+      app.company, app.role, app.status,
+      new Date(app.dateApplied).toLocaleDateString(),
+      app.notes || '', app.salaryRange || '',
+    ]);
+    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `applications-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
+
+  const getFilteredApplicationsByStatus = (status: string) => {
+    let filtered = applications.filter(app => app.status === status);
+    if (searchTerm) {
+      filtered = filtered.filter(app =>
+        app.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.role.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      filtered = filtered.filter(app => {
+        const appDate = new Date(app.dateApplied);
+        if (dateFilter === 'week') {
+          const weekAgo = new Date(now.setDate(now.getDate() - 7));
+          return appDate >= weekAgo;
+        } else if (dateFilter === 'month') {
+          const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
+          return appDate >= monthAgo;
+        } else if (dateFilter === 'year') {
+          const yearAgo = new Date(now.setFullYear(now.getFullYear() - 1));
+          return appDate >= yearAgo;
+        }
+        return true;
+      });
+    }
+    return filtered;
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setTimeout(() => {
+      if (kanbanRef.current && e.target.value) {
+        kanbanRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setDateFilter('all');
+    if (searchInputRef.current) searchInputRef.current.focus();
+  };
+
+  const handleHelpClick = () => setShowTour(true);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-gray-400">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0f] dark:to-[#12121a] flex items-center justify-center">
+        <motion.div
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      <header className="bg-gray-800 border-b border-gray-700 p-4 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold text-white">Job Application Tracker</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-300">Welcome, {user?.name}</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0f] dark:to-[#12121a] transition-colors duration-300">
+      
+      {/* Celebration Animation */}
+      <AnimatePresence>
+        {celebration.show && (
+          <motion.div
+            initial={{ opacity: 0, y: -100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -100 }}
+            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none"
+          >
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl px-8 py-4 shadow-2xl text-center">
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 0.5, repeat: 2 }}
+              >
+                <div className="text-4xl mb-2">🎉</div>
+                <p className="font-bold text-lg">Offer Received! 🎊</p>
+                <p className="text-sm opacity-90">{celebration.role} @ {celebration.company}</p>
+                <p className="text-xs mt-1">Congratulations! You're one step closer! 🚀</p>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="relative overflow-hidden py-2 bg-white/30 dark:bg-black/20 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
+        <motion.div
+          animate={{ x: [0, -1920] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="flex gap-8 whitespace-nowrap"
+        >
+          {[...jobTitles, ...jobTitles].map((title, i) => (
+            <span key={i} className="text-xs text-gray-500 dark:text-gray-400">
+              {title}
+              <span className="mx-4 text-indigo-400">✦</span>
+            </span>
+          ))}
+        </motion.div>
+      </div>
+
+      <header className={`sticky top-0 z-40 backdrop-blur-xl border-b transition-all ${
+        theme === 'dark' 
+          ? 'bg-[#0a0a0f]/80 border-gray-800' 
+          : 'bg-gradient-to-r from-indigo-50/90 via-white/90 to-purple-50/90 border-indigo-100'
+      }`}>
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+          {/* Logo + Text side by side */}
+          <div className="flex items-center gap-3 shrink-0">
+            <img src="/logoalone.png" alt="PATHGRID Logo" className="w-10 h-10 object-contain" />
+            <img src="/textonly.png" alt="PATHGRID" className="h-6 object-contain" />
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all"
             >
-              + Add Application
+              <Plus className="w-4 h-4" />
+              Add Job
             </button>
+
             <button
-              onClick={handleLogout}
-              className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+              onClick={exportToCSV}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#1a1a2e] text-gray-700 dark:text-gray-300 rounded-xl text-sm font-semibold hover:bg-gray-200 dark:hover:bg-[#22223b] transition-all"
             >
-              Logout
+              <Download className="w-4 h-4" />
+              Export
             </button>
+
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-gray-100 dark:bg-[#1a1a2e] hover:bg-gray-200 dark:hover:bg-[#22223b] transition-colors"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-gray-600" />}
+            </button>
+
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-[#1a1a2e] transition-colors"
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                  {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                </div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden md:block">{user?.name?.split(' ')[0]}</span>
+                <ChevronDown className="w-3 h-3 text-gray-400 hidden md:block" />
+              </button>
+
+              <AnimatePresence>
+                {userMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setUserMenuOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl overflow-hidden z-50"
+                    >
+                      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                        <p className="text-xs font-semibold text-gray-900 dark:text-white">{user?.name}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{user?.email}</p>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6">
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {columns.map((column) => (
-              <div key={column.id} className="bg-gray-800 rounded-lg p-4">
-                <h2 className="font-semibold text-white mb-3 flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${column.color}`}></div>
-                  {column.title}
-                  <span className="text-gray-400 text-sm ml-auto">
-                    {getApplicationsByStatus(column.id).length}
-                  </span>
-                </h2>
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-5">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="flex flex-col h-full">
+            <div className="flex-shrink-0">
+              <QuotesPanel />
+            </div>
+            <div className="flex-1 my-4">
+              <StatsCards applications={applications} />
+            </div>
+            <div className="flex-shrink-0">
+              <div className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search by company or role..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    className="w-full pl-9 pr-24 py-3 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                  />
+                  <button
+                    onClick={() => setShowDateFilter(!showDateFilter)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-xs flex items-center gap-1 text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                  >
+                    <Filter className="w-3 h-3" />
+                    {dateFilter !== 'all' && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />}
+                  </button>
+                </div>
                 
-                <Droppable droppableId={column.id}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className="space-y-2 min-h-[200px]"
+                <AnimatePresence>
+                  {showDateFilter && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-30 p-3"
                     >
-                      {getApplicationsByStatus(column.id).map((app, index) => (
-                        <Draggable key={app._id} draggableId={app._id} index={index}>
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="bg-gray-700 rounded-lg p-3 hover:bg-gray-650 transition group"
-                            >
-                              <h3 className="text-white font-medium text-sm">{app.role}</h3>
-                              <p className="text-gray-400 text-xs">{app.company}</p>
-                              <p className="text-gray-500 text-xs mt-1">
-                                Applied: {new Date(app.dateApplied).toLocaleDateString()}
-                              </p>
-                              <button
-                                onClick={() => handleDelete(app._id)}
-                                className="text-red-400 text-xs mt-2 opacity-0 group-hover:opacity-100 transition"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Date Range</div>
+                      <div className="space-y-1">
+                        {[
+                          { value: 'all', label: 'All time' },
+                          { value: 'week', label: 'Last 7 days' },
+                          { value: 'month', label: 'Last 30 days' },
+                          { value: 'year', label: 'Last year' },
+                        ].map(option => (
+                          <button
+                            key={option.value}
+                            onClick={() => {
+                              setDateFilter(option.value as any);
+                              setShowDateFilter(false);
+                            }}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                              dateFilter === option.value 
+                                ? 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400' 
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Custom Date</div>
+                        <div className="flex gap-2">
+                          <input
+                            type="date"
+                            className="flex-1 px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-700 dark:text-gray-300"
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                setShowDateFilter(false);
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                      {(searchTerm || dateFilter !== 'all') && (
+                        <button
+                          onClick={clearFilters}
+                          className="w-full mt-3 text-center text-xs text-rose-500 hover:text-rose-600 py-2 border-t border-gray-200 dark:border-gray-700"
+                        >
+                          Clear all filters
+                        </button>
+                      )}
+                    </motion.div>
                   )}
-                </Droppable>
+                </AnimatePresence>
               </div>
-            ))}
+            </div>
           </div>
-        </DragDropContext>
+          
+          <div className="h-full">
+            <ApplicationChart applications={applications} />
+          </div>
+        </div>
 
-        {applications.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-400">No applications yet. Click "Add Application" to get started.</p>
+        {(searchTerm || dateFilter !== 'all') && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <span className="text-xs text-gray-500">Active filters:</span>
+            {searchTerm && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs">
+                Search: "{searchTerm}"
+                <button onClick={() => setSearchTerm('')}><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {dateFilter !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs">
+                {dateFilter === 'week' ? 'Last 7 days' : dateFilter === 'month' ? 'Last 30 days' : 'Last year'}
+                <button onClick={() => setDateFilter('all')}><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            <button onClick={clearFilters} className="text-xs text-rose-500 hover:text-rose-600 ml-2">Clear all</button>
           </div>
         )}
+
+        <div ref={kanbanRef} className="mt-2">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Track your jobs here</h2>
+              <button
+                onClick={handleHelpClick}
+                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+              >
+                <HelpCircle className="w-4 h-4 text-gray-400 group-hover:text-indigo-500 transition-colors" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-400">Drag and drop cards to move between stages</p>
+          </div>
+
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {columns.map((column) => {
+                const cards = getFilteredApplicationsByStatus(column.id);
+                return (
+                  <div key={column.id} className="flex flex-col">
+                    <div className="bg-gray-100/50 dark:bg-[#1a1a2e]/50 rounded-xl px-3 py-2 mb-3 flex items-center justify-between">
+                      <button
+                        className={`text-sm font-semibold transition-colors ${column.color} ${column.hoverColor}`}
+                      >
+                        {column.title}
+                      </button>
+                      <span className="text-xs font-bold text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-black/20 rounded-lg px-2 py-0.5">{cards.length}</span>
+                    </div>
+
+                    <Droppable droppableId={column.id}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className={`space-y-2 min-h-[320px] rounded-xl p-1 transition-all ${snapshot.isDraggingOver ? 'bg-indigo-50/50 dark:bg-indigo-950/20' : ''}`}
+                        >
+                          {cards.map((app, index) => (
+                            <Draggable key={app._id} draggableId={app._id} index={index}>
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  onClick={() => handleCardClick(app)}
+                                >
+                                  <motion.div
+                                    className={`bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-gray-700 rounded-xl p-3 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 group ${
+                                      snapshot.isDragging ? 'shadow-lg rotate-1' : ''
+                                    }`}
+                                    layout
+                                  >
+                                    <div className="space-y-2">
+                                      <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{app.role}</h3>
+                                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{app.company}</p>
+                                        </div>
+                                        <button
+                                          onClick={(e) => { e.stopPropagation(); handleDelete(app._id); }}
+                                          className="text-xs text-rose-400 hover:text-rose-600 transition-colors opacity-0 group-hover:opacity-100"
+                                        >
+                                          ✕
+                                        </button>
+                                      </div>
+                                      <div className="flex items-center justify-between pt-1 border-t border-gray-100 dark:border-gray-800">
+                                        <span className="text-[10px] text-gray-400 flex items-center gap-1">
+                                          <Calendar className="w-2.5 h-2.5" />
+                                          {new Date(app.dateApplied).toLocaleDateString()}
+                                        </span>
+                                        <button
+                                          onClick={(e) => { e.stopPropagation(); handleCardClick(app); }}
+                                          className="text-[10px] text-indigo-500 hover:text-indigo-600 transition-colors flex items-center gap-1"
+                                        >
+                                          <Edit3 className="w-2.5 h-2.5" />
+                                          Edit
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </div>
+                );
+              })}
+            </div>
+          </DragDropContext>
+
+          {applications.length === 0 && (
+            <div className="text-center py-16">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mb-4">
+                <Sparkles className="w-8 h-8 text-indigo-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No applications yet</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Add your first application to get started</p>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Add Job
+              </button>
+            </div>
+          )}
+        </div>
       </main>
 
-      <AddApplicationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={fetchApplications}
-      />
+      <KanbanTour showTour={showTour} setShowTour={setShowTour} />
+      <AddApplicationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={fetchApplications} />
+      <EditApplicationModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSuccess={fetchApplications} application={selectedApplication} />
     </div>
   );
 }
