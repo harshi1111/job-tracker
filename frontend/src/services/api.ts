@@ -17,7 +17,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log('Request:', config.method?.toUpperCase(), config.url, 'Token:', token ? 'Yes' : 'No');
     return config;
   },
   (error) => Promise.reject(error)
@@ -26,13 +25,11 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
-    console.log('✅ API Response success:', response.status, response.data);
     return response;
   },
   (error) => {
-    console.error('❌ API Response error:', error.response?.status, error.response?.data);
-    if (error.response?.status === 401) {
-      console.error('401 Unauthorized - Redirecting to login');
+    // Only redirect to login for 401 errors that are NOT from auth endpoints
+    if (error.response?.status === 401 && !error.config.url?.includes('/auth/')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
