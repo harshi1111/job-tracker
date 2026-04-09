@@ -8,7 +8,6 @@ import ShapeGrid from '../components/ShapeGrid';
 export default function Landing() {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const [mousePosition, _setMousePosition] = useState({ x: 0, y: 0 });
   const [stats, setStats] = useState({
     totalJobs: 0,
     aiAccuracy: 95,
@@ -28,11 +27,6 @@ export default function Landing() {
   const isCtaInView = useInView(ctaRef, { once: true, amount: 0.3 });
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    
     const fetchStats = async () => {
       try {
         const response = await api.get('/stats');
@@ -54,8 +48,6 @@ export default function Landing() {
     };
     
     fetchStats();
-    
-    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   const features = [
