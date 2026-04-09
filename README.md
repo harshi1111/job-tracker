@@ -1,4 +1,3 @@
-
 <div align="center">
 
   <picture>
@@ -10,7 +9,7 @@
   ### Navigate Your Career Path
   
   [![Live Demo](https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://job-tracker-six-gamma.vercel.app)
-  [![Backend API](https://img.shields.io/badge/Backend_API-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://job-tracker-ybmq.onrender.com)
+  [![Demo Video](https://img.shields.io/badge/Demo_Video-46E3B7?style=for-the-badge&logo=youtube&logoColor=black)](https://youtu.be/R8QJgCV0_i0)
   
 </div>
 
@@ -22,17 +21,14 @@
 
 ## ✦ The Grid
 
-PATHGRID transforms chaotic job searching into a streamlined, intelligent workflow. Paste any job description, and our AI extracts the essentials while generating tailored resume bullets that actually get noticed.
+PATHGRID transforms chaotic job searching into a **streamlined**, **intelligent workflow**. Paste any job description, and our **AI** extracts the essentials while generating **tailored resume bullets** that actually get noticed.
 
 <br>
 
 | | | |
 |:-:|:-:|:-:|
-| **AI Parsing**<br><sub>Extracts company, role, skills, seniority, location</sub> | **Resume Coach**<br><sub>3-5 tailored bullets with one-click copy</sub> | **Kanban Pipeline**<br><sub>Drag & drop across 5 career stages</sub> |
-| **Smart Reminders**<br><sub>Never miss a follow-up again</sub> | **Analytics Dashboard**<br><sub>Visualize your job search journey</sub> | **Export & Backup**<br><sub>CSV export for your records</sub> |
-
----
-
+| <img src="icons/ai.svg" width="32"><br>**AI Parsing**<br><sub>Extracts company, role, skills, seniority, location</sub> | <img src="icons/resume.svg" width="32"><br>**Resume Coach**<br><sub>3-5 tailored bullets with one-click copy</sub> | <img src="icons/kanban.svg" width="32"><br>**Kanban Pipeline**<br><sub>Drag & drop across 5 career stages</sub> |
+| <img src="icons/reminder.svg" width="32"><br>**Smart Reminders**<br><sub>Never miss a follow-up again</sub> | <img src="icons/analytics.svg" width="32"><br>**Analytics Dashboard**<br><sub>Visualize your job search journey</sub> | <img src="icons/export.svg" width="32"><br>**Export & Backup**<br><sub>CSV export for your records</sub> |
 ## ✦ The Architecture
 
 ```mermaid
