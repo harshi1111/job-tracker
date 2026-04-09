@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { register } from '../services/auth.service';
 import { useTheme } from '../context/ThemeContext';
 import Hyperspeed from '../components/Hyperspeed';
+import ShapeGrid from '../components/ShapeGrid';
 
 // Blur Text Component
 const BlurText = ({ text, className = "" }: { text: string; className?: string }) => {
@@ -69,6 +70,19 @@ export default function Register() {
         : 'bg-gray-50'
     }`}>
       
+      {/* ShapeGrid Background - BRIGHTER LINES */}
+      <div className="fixed inset-0 z-0" style={{ pointerEvents: 'auto' }}>
+        <ShapeGrid 
+          speed={0.5}
+          squareSize={40}
+          direction="diagonal"
+          borderColor={theme === 'dark' ? '#6a5a8a' : '#6666aa'}
+          hoverFillColor={theme === 'dark' ? '#a0a0ff' : '#4f46e5'}
+          shape="square"
+          hoverTrailAmount={0}
+        />
+      </div>
+
       {/* Hyperspeed Background */}
       {theme === 'dark' && (
         <div className="fixed inset-0 z-0 opacity-10">

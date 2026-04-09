@@ -227,8 +227,7 @@ export default function Dashboard() {
     const value = e.target.value;
     setCustomDate(value);
     if (value) {
-      // Don't close the dropdown, just store the date
-      console.log('Custom date selected:', value);
+      // Custom date selected
     }
   };
 

@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { login } from '../services/auth.service';
 import { useTheme } from '../context/ThemeContext';
 import Hyperspeed from '../components/Hyperspeed';
+import ShapeGrid from '../components/ShapeGrid';
 
 // Blur Text Component
 const BlurText = ({ text, className = "" }: { text: string; className?: string }) => {
@@ -51,13 +52,10 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    console.log('Attempting login with:', { email, password });
     try {
       const result = await login({ email, password });
-      console.log('Login success:', result); 
       navigate('/dashboard');
     } catch (err: any) {
-      console.error('Login error:', err); 
       setError(err.response?.data?.error || 'Login failed');
     } finally {
       setLoading(false);
@@ -71,6 +69,19 @@ export default function Login() {
         : 'bg-gray-50'
     }`}>
       
+      {/* ShapeGrid Background - BRIGHTER LINES */}
+      <div className="fixed inset-0 z-0" style={{ pointerEvents: 'auto' }}>
+        <ShapeGrid 
+          speed={0.5}
+          squareSize={40}
+          direction="diagonal"
+          borderColor={theme === 'dark' ? '#6a5a8a' : '#6666aa'}
+          hoverFillColor={theme === 'dark' ? '#a0a0ff' : '#4f46e5'}
+          shape="square"
+          hoverTrailAmount={0}
+        />
+      </div>
+
       {/* Hyperspeed Background */}
       {theme === 'dark' && (
         <div className="fixed inset-0 z-0 opacity-10">
@@ -140,7 +151,7 @@ export default function Login() {
               />
             </div>
 
-            {/* Stats - ONLY THIS SECTION CHANGED - Numbers turn indigo on hover */}
+            {/* Stats */}
             <motion.div 
               className="flex flex-wrap justify-center lg:justify-start gap-8 pt-8 border-t border-gray-200 dark:border-gray-800"
               initial={{ opacity: 0 }}
