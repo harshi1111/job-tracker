@@ -349,7 +349,7 @@ export default function Dashboard() {
 
             <button
               onClick={exportToCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#1a1a2e] text-gray-700 dark:text-gray-300 rounded-xl text-sm font-semibold hover:bg-gray-200 dark:hover:bg-[#22223b] transition-all"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#1a1a2e] border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-semibold hover:bg-gray-200 dark:hover:bg-[#22223b] transition-all"
             >
               <Download className="w-4 h-4" />
               Export
@@ -406,7 +406,7 @@ export default function Dashboard() {
 
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-5 relative z-10">
         
-        <div className="mb-6">
+        <div className="mb-6 rounded-xl border border-indigo-300 dark:border-gray-600 overflow-hidden">
           <ReminderPanel 
             applications={applications} 
             onApplicationClick={(app) => {
@@ -418,7 +418,7 @@ export default function Dashboard() {
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <div className="flex flex-col h-full">
-            <div className="flex-shrink-0 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white/90 dark:bg-transparent backdrop-blur-sm">
+            <div className="flex-shrink-0 border border-gray-300 dark:border-gray-600 rounded-xl overflow-hidden bg-white/90 dark:bg-transparent backdrop-blur-sm">
               <QuotesPanel />
             </div>
             <div className="flex-1 my-4">
@@ -426,7 +426,7 @@ export default function Dashboard() {
             </div>
             <div className="flex-shrink-0">
               <div className="relative">
-                <div className="relative border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white/90 dark:bg-transparent backdrop-blur-sm">
+                <div className="relative border border-gray-300 dark:border-gray-600 rounded-xl overflow-hidden bg-white/90 dark:bg-transparent backdrop-blur-sm">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input
                     ref={searchInputRef}
@@ -451,7 +451,7 @@ export default function Dashboard() {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-30 p-3"
+                      className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a1a2e] border border-gray-300 dark:border-gray-600 rounded-xl shadow-lg z-30 p-3"
                     >
                       <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Date Range</div>
                       <div className="space-y-1">
@@ -485,7 +485,7 @@ export default function Dashboard() {
                             type="date"
                             value={customDate}
                             onChange={handleCustomDateChange}
-                            className="flex-1 px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            className="flex-1 px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                             placeholder="YYYY-MM-DD"
                           />
                           <button
@@ -511,7 +511,7 @@ export default function Dashboard() {
             </div>
           </div>
           
-          <div className="h-full border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white/90 dark:bg-transparent backdrop-blur-sm">
+          <div className="h-full border border-gray-300 dark:border-gray-600 rounded-xl overflow-hidden bg-white/90 dark:bg-transparent backdrop-blur-sm">
             <ApplicationChart applications={applications} />
           </div>
         </div>
