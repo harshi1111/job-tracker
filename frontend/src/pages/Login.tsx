@@ -69,7 +69,7 @@ export default function Login() {
         : 'bg-gray-50'
     }`}>
       
-      {/* ShapeGrid Background */}
+      {/* ShapeGrid Background - receives mouse events */}
       <div className="fixed inset-0 z-0" style={{ pointerEvents: 'auto' }}>
         <ShapeGrid 
           speed={0.5}
@@ -84,7 +84,7 @@ export default function Login() {
 
       {/* Hyperspeed Background - Only for dark mode */}
       {theme === 'dark' && (
-        <div className="fixed inset-0 z-0 opacity-10">
+        <div className="fixed inset-0 z-0 opacity-10 pointer-events-none">
           <Hyperspeed />
         </div>
       )}
@@ -97,7 +97,7 @@ export default function Login() {
       />
 
       {/* Main Content */}
-      <div className="relative z-10" style={{ pointerEvents: 'none' }}>
+      <div className="relative z-10">
         <motion.div 
           style={{ opacity }}
           className="min-h-screen flex items-center justify-center px-4"
@@ -111,13 +111,12 @@ export default function Login() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              {/* Logo with solid #010101 background */}
+              {/* Logo */}
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ duration: 0.8, type: "spring", stiffness: 50 }}
                 className="flex items-center justify-center lg:justify-start mb-8"
-                style={{ pointerEvents: 'auto' }}
               >
                 <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#010101] border border-indigo-500 shadow-xl shadow-cyan-500/20">
                   <img 
@@ -133,8 +132,8 @@ export default function Login() {
                 </div>
               </motion.div>
 
-              {/* Blur Text Headline */}
-              <div className="mb-4" style={{ pointerEvents: 'none' }}>
+              {/* Headline */}
+              <div className="mb-4">
                 <BlurText 
                   text="Welcome Back to Your Career Grid"
                   className={`text-4xl md:text-5xl font-bold ${
@@ -143,8 +142,8 @@ export default function Login() {
                 />
               </div>
 
-              {/* Blur Text Description */}
-              <div className="mb-8" style={{ pointerEvents: 'none' }}>
+              {/* Description */}
+              <div className="mb-8">
                 <BlurText 
                   text="Sign in to continue tracking your applications, get AI-powered resume suggestions, and land your dream job faster."
                   className={`text-lg ${
@@ -159,7 +158,6 @@ export default function Login() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
-                style={{ pointerEvents: 'none' }}
               >
                 {[
                   { value: 'AI', label: 'Powered Parsing' },
@@ -190,7 +188,6 @@ export default function Login() {
               initial={{ opacity: 0, x: 50, filter: "blur(10px)" }}
               animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              style={{ pointerEvents: 'auto' }}
             >
               <div className={`relative rounded-2xl p-8 ${
                 theme === 'dark' 
