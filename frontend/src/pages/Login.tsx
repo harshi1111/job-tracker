@@ -51,10 +51,13 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    console.log('Attempting login with:', { email, password });
     try {
-      await login({ email, password });
+      const result = await login({ email, password });
+      console.log('Login success:', result); 
       navigate('/dashboard');
     } catch (err: any) {
+      console.error('Login error:', err); 
       setError(err.response?.data?.error || 'Login failed');
     } finally {
       setLoading(false);
