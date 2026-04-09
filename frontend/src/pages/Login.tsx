@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { login } from '../services/auth.service';
 import { useTheme } from '../context/ThemeContext';
 import Hyperspeed from '../components/Hyperspeed';
+import ShapeGrid from '../components/ShapeGrid';
 
 // Blur Text Component
 const BlurText = ({ text, className = "" }: { text: string; className?: string }) => {
@@ -51,13 +52,10 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    console.log('Attempting login with:', { email, password });
     try {
-      const result = await login({ email, password });
-      console.log('Login success:', result); 
+      await login({ email, password });
       navigate('/dashboard');
     } catch (err: any) {
-      console.error('Login error:', err); 
       setError(err.response?.data?.error || 'Login failed');
     } finally {
       setLoading(false);
@@ -71,7 +69,20 @@ export default function Login() {
         : 'bg-gray-50'
     }`}>
       
-      {/* Hyperspeed Background */}
+      {/* ShapeGrid Background */}
+      <div className="fixed inset-0 z-0" style={{ pointerEvents: 'auto' }}>
+        <ShapeGrid 
+          speed={0.5}
+          squareSize={40}
+          direction="diagonal"
+          borderColor={theme === 'dark' ? '#271E37' : '#ccccdd'}
+          hoverFillColor={theme === 'dark' ? '#6366f1' : '#818cf8'}
+          shape="square"
+          hoverTrailAmount={0}
+        />
+      </div>
+
+      {/* Hyperspeed Background - Only for dark mode */}
       {theme === 'dark' && (
         <div className="fixed inset-0 z-0 opacity-10">
           <Hyperspeed />
@@ -86,181 +97,186 @@ export default function Login() {
       />
 
       {/* Main Content */}
-      <motion.div 
-        style={{ opacity }}
-        className="relative z-10 min-h-screen flex items-center justify-center px-4"
-      >
-        <div className="max-w-6xl w-full mx-auto flex flex-col lg:flex-row items-center gap-12">
-          
-          {/* Left Side - Branding with Blur Text */}
-          <motion.div 
-            className="flex-1 text-center lg:text-left"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            {/* Logo with solid #010101 background */}
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ duration: 0.8, type: "spring", stiffness: 50 }}
-              className="flex items-center justify-center lg:justify-start mb-8"
+      <div className="relative z-10" style={{ pointerEvents: 'none' }}>
+        <motion.div 
+          style={{ opacity }}
+          className="min-h-screen flex items-center justify-center px-4"
+        >
+          <div className="max-w-6xl w-full mx-auto flex flex-col lg:flex-row items-center gap-12">
+            
+            {/* Left Side - Branding with Blur Text */}
+            <motion.div 
+              className="flex-1 text-center lg:text-left"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#010101] border border-indigo-500 shadow-xl shadow-cyan-500/20">
-                <img 
-                  src="/logoalone.png" 
-                  alt="PATHGRID Logo" 
-                  className="w-16 h-16 object-contain"
-                />
-                <img 
-                  src="/textonly.png" 
-                  alt="PATHGRID" 
-                  className="h-12 object-contain"
+              {/* Logo with solid #010101 background */}
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.8, type: "spring", stiffness: 50 }}
+                className="flex items-center justify-center lg:justify-start mb-8"
+                style={{ pointerEvents: 'auto' }}
+              >
+                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#010101] border border-indigo-500 shadow-xl shadow-cyan-500/20">
+                  <img 
+                    src="/logoalone.png" 
+                    alt="PATHGRID Logo" 
+                    className="w-16 h-16 object-contain"
+                  />
+                  <img 
+                    src="/textonly.png" 
+                    alt="PATHGRID" 
+                    className="h-12 object-contain"
+                  />
+                </div>
+              </motion.div>
+
+              {/* Blur Text Headline */}
+              <div className="mb-4" style={{ pointerEvents: 'none' }}>
+                <BlurText 
+                  text="Welcome Back to Your Career Grid"
+                  className={`text-4xl md:text-5xl font-bold ${
+                    theme === 'dark' ? 'text-white' : 'text-gray-900'
+                  }`}
                 />
               </div>
-            </motion.div>
 
-            {/* Blur Text Headline */}
-            <div className="mb-4">
-              <BlurText 
-                text="Welcome Back to Your Career Grid"
-                className={`text-4xl md:text-5xl font-bold ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}
-              />
-            </div>
+              {/* Blur Text Description */}
+              <div className="mb-8" style={{ pointerEvents: 'none' }}>
+                <BlurText 
+                  text="Sign in to continue tracking your applications, get AI-powered resume suggestions, and land your dream job faster."
+                  className={`text-lg ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                />
+              </div>
 
-            {/* Blur Text Description */}
-            <div className="mb-8">
-              <BlurText 
-                text="Sign in to continue tracking your applications, get AI-powered resume suggestions, and land your dream job faster."
-                className={`text-lg ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                }`}
-              />
-            </div>
-
-            {/* Stats - ONLY THIS SECTION CHANGED - Numbers turn indigo on hover */}
-            <motion.div 
-              className="flex flex-wrap justify-center lg:justify-start gap-8 pt-8 border-t border-gray-200 dark:border-gray-800"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-            >
-              {[
-                { value: 'AI', label: 'Powered Parsing' },
-                { value: '5', label: 'Pipeline Stages' },
-                { value: '100%', label: 'Free Forever' },
-              ].map((stat, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ scale: 0, filter: "blur(10px)" }}
-                  animate={{ scale: 1, filter: "blur(0px)" }}
-                  transition={{ delay: 0.6 + idx * 0.1, type: "spring", stiffness: 200 }}
-                  className="text-center lg:text-left group cursor-pointer"
-                >
-                  <div className={`text-2xl font-bold transition-colors duration-300 group-hover:text-indigo-500 ${
-                    theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'
-                  }`}>
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-gray-500">{stat.label}</div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </motion.div>
-
-          {/* Right Side - Login Card */}
-          <motion.div
-            className="flex-1 w-full max-w-md mx-auto lg:mx-0"
-            initial={{ opacity: 0, x: 50, filter: "blur(10px)" }}
-            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div className={`relative rounded-2xl p-8 ${
-              theme === 'dark' 
-                ? 'bg-[#1a1a2e]/50 backdrop-blur-sm border border-gray-700' 
-                : 'bg-white/50 backdrop-blur-sm border border-gray-200'
-            } shadow-xl`}>
-              
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-cyan-500 to-blue-500 rounded-2xl opacity-20 blur-xl" />
-
-              <div className="relative">
-                <h2 className={`text-2xl font-bold mb-2 ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>Sign In</h2>
-                <p className={`text-sm mb-6 ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                }`}>Enter your credentials to access your account</p>
-
-                {error && (
-                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm text-center">
-                    {error}
-                  </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                    }`}>Email Address</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-200 outline-none ${
-                        theme === 'dark'
-                          ? 'border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20'
-                          : 'border-gray-200 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
-                      }`}
-                      placeholder="you@example.com"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                    }`}>Password</label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className={`w-full px-4 py-3 rounded-xl border transition-all duration-200 outline-none ${
-                        theme === 'dark'
-                          ? 'border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20'
-                          : 'border-gray-200 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
-                      }`}
-                      placeholder="••••••••"
-                      required
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3 bg-gradient-to-r from-indigo-500 via-cyan-500 via-blue-500 to-purple-600 bg-[length:200%_200%] animate-gradient text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-200 disabled:opacity-60 relative overflow-hidden group"
+              {/* Stats */}
+              <motion.div 
+                className="flex flex-wrap justify-center lg:justify-start gap-8 pt-8 border-t border-gray-200 dark:border-gray-800"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
+                style={{ pointerEvents: 'none' }}
+              >
+                {[
+                  { value: 'AI', label: 'Powered Parsing' },
+                  { value: '5', label: 'Pipeline Stages' },
+                  { value: '100%', label: 'Free Forever' },
+                ].map((stat, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ scale: 0, filter: "blur(10px)" }}
+                    animate={{ scale: 1, filter: "blur(0px)" }}
+                    transition={{ delay: 0.6 + idx * 0.1, type: "spring", stiffness: 200 }}
+                    className="text-center lg:text-left group cursor-pointer"
                   >
-                    <span className="relative z-10">{loading ? 'Signing in...' : 'Sign In'}</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                  </button>
-                </form>
+                    <div className={`text-2xl font-bold transition-colors duration-300 group-hover:text-indigo-500 ${
+                      theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'
+                    }`}>
+                      {stat.value}
+                    </div>
+                    <div className="text-sm text-gray-500">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
 
-                <div className="mt-6 text-center">
-                  <p className={`text-sm ${
+            {/* Right Side - Login Card */}
+            <motion.div
+              className="flex-1 w-full max-w-md mx-auto lg:mx-0"
+              initial={{ opacity: 0, x: 50, filter: "blur(10px)" }}
+              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              style={{ pointerEvents: 'auto' }}
+            >
+              <div className={`relative rounded-2xl p-8 ${
+                theme === 'dark' 
+                  ? 'bg-[#1a1a2e]/50 backdrop-blur-sm border border-gray-700' 
+                  : 'bg-white/50 backdrop-blur-sm border border-gray-200'
+              } shadow-xl`}>
+                
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-cyan-500 to-blue-500 rounded-2xl opacity-20 blur-xl" />
+
+                <div className="relative">
+                  <h2 className={`text-2xl font-bold mb-2 ${
+                    theme === 'dark' ? 'text-white' : 'text-gray-900'
+                  }`}>Sign In</h2>
+                  <p className={`text-sm mb-6 ${
                     theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                  }`}>
-                    Don't have an account?{' '}
-                    <a href="/register" className="text-cyan-600 dark:text-cyan-400 hover:underline font-semibold">
-                      Create Account
-                    </a>
-                  </p>
+                  }`}>Enter your credentials to access your account</p>
+
+                  {error && (
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm text-center">
+                      {error}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}>Email Address</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className={`w-full px-4 py-3 rounded-xl border transition-all duration-200 outline-none ${
+                          theme === 'dark'
+                            ? 'border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20'
+                            : 'border-gray-200 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
+                        }`}
+                        placeholder="you@example.com"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}>Password</label>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className={`w-full px-4 py-3 rounded-xl border transition-all duration-200 outline-none ${
+                          theme === 'dark'
+                            ? 'border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20'
+                            : 'border-gray-200 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
+                        }`}
+                        placeholder="••••••••"
+                        required
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-3 bg-gradient-to-r from-indigo-500 via-cyan-500 via-blue-500 to-purple-600 bg-[length:200%_200%] animate-gradient text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-200 disabled:opacity-60 relative overflow-hidden group"
+                    >
+                      <span className="relative z-10">{loading ? 'Signing in...' : 'Sign In'}</span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    </button>
+                  </form>
+
+                  <div className="mt-6 text-center">
+                    <p className={`text-sm ${
+                      theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                    }`}>
+                      Don't have an account?{' '}
+                      <a href="/register" className="text-cyan-600 dark:text-cyan-400 hover:underline font-semibold">
+                        Create Account
+                      </a>
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        </div>
-      </motion.div>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }
