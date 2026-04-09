@@ -25,8 +25,12 @@ api.interceptors.request.use(
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ API Response success:', response.status, response.data);
+    return response;
+  },
   (error) => {
+    console.error('❌ API Response error:', error.response?.status, error.response?.data);
     if (error.response?.status === 401) {
       console.error('401 Unauthorized - Redirecting to login');
       localStorage.removeItem('token');
