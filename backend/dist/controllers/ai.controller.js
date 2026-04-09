@@ -201,7 +201,7 @@ const parseJobDescription = async (req, res) => {
             try {
                 console.log(`🔄 Trying ${provider.name} for parsing...`);
                 const genAI = provider.client;
-                const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                const geminiModel = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
                 const result = await geminiModel.generateContent(prompt);
                 let text = result.response.text();
                 const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -318,7 +318,7 @@ const generateResumeSuggestions = async (req, res) => {
             try {
                 console.log(`🔄 Trying ${provider.name} for suggestions...`);
                 const genAI = provider.client;
-                const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                const geminiModel = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
                 const result = await geminiModel.generateContent(prompt);
                 let text = result.response.text();
                 const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -431,7 +431,7 @@ const parseJobDescriptionStream = async (req, res) => {
             try {
                 console.log(`🔄 Trying ${provider.name} fallback...`);
                 const genAI = provider.client;
-                const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                const geminiModel = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
                 const result = await geminiModel.generateContent(prompt);
                 let text = result.response.text();
                 const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -570,7 +570,7 @@ const generateResumeSuggestionsStream = async (req, res) => {
             try {
                 console.log(`🔄 Trying ${provider.name} Gemini for suggestions...`);
                 const genAI = provider.client;
-                const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                const geminiModel = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
                 const result = await geminiModel.generateContent(prompt);
                 let text = result.response.text();
                 const jsonMatch = text.match(/\{[\s\S]*\}/);
