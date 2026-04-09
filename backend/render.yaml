@@ -1,10 +1,29 @@
 services:
   - type: web
-    name: job-tracker-backend-test
+    name: job-tracker-backend
     runtime: node
     plan: free
-    buildCommand: npm install express
-    startCommand: node health-check.js
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
     envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: PORT
         value: 10000
+      - key: GROQ_API_KEY_1
+        sync: false
+      - key: GROQ_API_KEY_2
+        sync: false
+      - key: GROQ_API_KEY_3
+        sync: false
+      - key: GEMINI_API_KEY_1
+        sync: false
+      - key: GEMINI_API_KEY_2
+        sync: false
+      - key: OPENROUTER_API_KEY_1
+        sync: false
+      - key: OPENROUTER_API_KEY_2
+        sync: false
