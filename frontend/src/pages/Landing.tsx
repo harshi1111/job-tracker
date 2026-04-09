@@ -72,7 +72,7 @@ export default function Landing() {
         : 'bg-gray-50'
     }`}>
       
-      {/* ShapeGrid Background - Full screen, receives mouse events */}
+      {/* ShapeGrid Background - receives mouse events */}
       <div className="fixed inset-0 z-0" style={{ pointerEvents: 'auto' }}>
         <ShapeGrid 
           speed={0.5}
@@ -85,7 +85,7 @@ export default function Landing() {
         />
       </div>
 
-      {/* Content wrapper - allows mouse events to pass through to grid */}
+      {/* Content wrapper - allows grid to receive hover events */}
       <div className="relative z-10" style={{ pointerEvents: 'none' }}>
         
         {/* Hero Section */}
@@ -94,14 +94,15 @@ export default function Landing() {
           style={{ opacity: heroOpacity, scale: heroScale }}
           className="relative min-h-screen flex items-center justify-center px-4 pt-20"
         >
-          <div className="text-center max-w-5xl mx-auto relative z-10" style={{ pointerEvents: 'auto' }}>
-            {/* Animated logo - Using your images */}
+          {/* Hero content - keeps grid hover over text */}
+          <div className="text-center max-w-5xl mx-auto relative z-10" style={{ pointerEvents: 'none' }}>
+            
+            {/* Logo */}
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ duration: 0.8, type: "spring", stiffness: 200 }}
               className="flex items-center justify-center gap-4 mb-8"
-              style={{ pointerEvents: 'none' }}
             >
               <img 
                 src={theme === 'dark' ? '/logoalone.png' : '/logoalonewhite.png'} 
@@ -115,9 +116,8 @@ export default function Landing() {
               />
             </motion.div>
 
-            {/* Headline - Added pointerEvents: 'none' so hover effect shows through */}
+            {/* Headline */}
             <motion.h1 
-              style={{ pointerEvents: 'none' }}
               className={`text-5xl md:text-7xl font-bold mb-6 leading-tight ${
                 theme === 'dark' ? 'text-white' : 'text-gray-900'
               }`}
@@ -131,9 +131,8 @@ export default function Landing() {
               </span>
             </motion.h1>
 
-            {/* Description - Added pointerEvents: 'none' so hover effect shows through */}
+            {/* Description */}
             <motion.p 
-              style={{ pointerEvents: 'none' }}
               className={`text-lg md:text-xl mb-10 max-w-2xl mx-auto ${
                 theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
               }`}
@@ -145,12 +144,13 @@ export default function Landing() {
               generate tailored resume suggestions, and land your dream job faster.
             </motion.p>
 
-            {/* Buttons - Keep clickable (no change) */}
+            {/* Buttons - need pointerEvents: 'auto' to be clickable */}
             <motion.div 
               className="flex flex-col sm:flex-row gap-4 justify-center"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
+              style={{ pointerEvents: 'auto' }}
             >
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
@@ -178,9 +178,8 @@ export default function Landing() {
               </motion.button>
             </motion.div>
 
-            {/* Stats - Added pointerEvents: 'none' so hover effect shows through */}
+            {/* Stats */}
             <motion.div 
-              style={{ pointerEvents: 'none' }}
               className="flex flex-wrap justify-center gap-8 mt-16 pt-8 border-t border-gray-200 dark:border-gray-800"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -206,7 +205,7 @@ export default function Landing() {
           </div>
         </motion.section>
 
-        {/* Features Section */}
+        {/* Features Section - keeps pointerEvents: 'auto' so cards are clickable */}
         <motion.section 
           ref={featuresRef}
           className="py-20 px-4 relative"
