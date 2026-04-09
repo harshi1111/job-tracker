@@ -10,7 +10,8 @@ import EditApplicationModal from '../components/EditApplicationModal';
 import ApplicationChart from '../components/ApplicationChart';
 import QuotesPanel from '../components/QuotesPanel';
 import StatsCards from '../components/StatsCards';
-import { Download, Sun, Moon, Sparkles, Plus, Search, LogOut, ChevronDown, Calendar, Filter, X, HelpCircle, Edit3 } from 'lucide-react';
+import ReminderPanel from '../components/ReminderPanel';
+import { Download, Sun, Moon, Sparkles, Plus, Search, LogOut, ChevronDown, Calendar, Filter, X, HelpCircle, Edit3, Bell } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import KanbanTour from '../components/KanbanTour';
 import Iridescence from '../components/Iridescence';
@@ -29,6 +30,17 @@ const columns = [
   { id: 'offer', title: 'Offer', color: 'text-emerald-600 dark:text-emerald-400', hoverColor: 'hover:text-emerald-700 dark:hover:text-emerald-300' },
   { id: 'rejected', title: 'Rejected', color: 'text-rose-600 dark:text-rose-400', hoverColor: 'hover:text-rose-700 dark:hover:text-rose-300' },
 ];
+
+// Helper function to check if an application's follow-up is overdue
+const isOverdue = (app: Application) => {
+  if (!app.followUpDate) return false;
+  if (app.status === 'offer' || app.status === 'rejected') return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const followUp = new Date(app.followUpDate);
+  followUp.setHours(0, 0, 0, 0);
+  return followUp < today;
+};
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -135,11 +147,13 @@ export default function Dashboard() {
   };
 
   const exportToCSV = () => {
-    const headers = ['Company', 'Role', 'Status', 'Date Applied', 'Notes', 'Salary Range'];
+    const headers = ['Company', 'Role', 'Status', 'Date Applied', 'Notes', 'Salary Range', 'Follow-up Date', 'Reminder Notes'];
     const rows = applications.map(app => [
       app.company, app.role, app.status,
       new Date(app.dateApplied).toLocaleDateString(),
       app.notes || '', app.salaryRange || '',
+      app.followUpDate ? new Date(app.followUpDate).toLocaleDateString() : '',
+      app.reminderNotes || '',
     ]);
     const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -214,12 +228,8 @@ export default function Dashboard() {
       {/* Iridescence Background - ONLY in light mode, clearly visible but subtle */}
       {theme === 'light' && (
         <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.35 }}>
-          <Iridescence 
-            color={[0.5, 0.6, 0.9]} 
-            speed={0.6} 
-            amplitude={0.05} 
-            mouseReact={true} 
-          />
+          <Iridescence /> 
+           
         </div>
       )}
       
@@ -409,12 +419,24 @@ export default function Dashboard() {
 
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-5 relative z-10">
         
+        {/* REMINDER PANEL - NEW SECTION */}
+        <div className="mb-6">
+          <ReminderPanel 
+            applications={applications} 
+            onApplicationClick={(app) => {
+              setSelectedApplication(app);
+              setIsEditModalOpen(true);
+            }} 
+          />
+        </div>
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <div className="flex flex-col h-full">
             <div className="flex-shrink-0 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white/90 dark:bg-transparent backdrop-blur-sm">
               <QuotesPanel />
             </div>
             <div className="flex-1 my-4">
+              
               <StatsCards applications={applications} />
             </div>
             <div className="flex-shrink-0">
@@ -567,13 +589,27 @@ export default function Dashboard() {
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                   onClick={() => handleCardClick(app)}
+                                  className="relative"
                                 >
                                   <motion.div
-                                    className={`bg-white/95 dark:bg-[#1a1a2e] backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl p-3 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 group ${
+                                    className={`bg-white/95 dark:bg-[#1a1a2e] backdrop-blur-sm border rounded-xl p-3 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 group ${
                                       snapshot.isDragging ? 'shadow-lg rotate-1' : ''
+                                    } ${
+                                      isOverdue(app) 
+                                        ? 'border-rose-400 dark:border-rose-600 shadow-rose-500/20' 
+                                        : 'border-gray-200 dark:border-gray-700'
                                     }`}
                                     layout
                                   >
+                                    {/* Overdue Badge */}
+                                    {isOverdue(app) && (
+                                      <div className="absolute -top-2 -right-2 z-10">
+                                        <div className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1">
+                                          <Bell className="w-2.5 h-2.5" />
+                                          Overdue
+                                        </div>
+                                      </div>
+                                    )}
                                     <div className="space-y-2">
                                       <div className="flex items-start justify-between">
                                         <div className="flex-1">
@@ -600,6 +636,19 @@ export default function Dashboard() {
                                           Edit
                                         </button>
                                       </div>
+                                      {/* Show follow-up date if exists */}
+                                      {app.followUpDate && !isOverdue(app) && (
+                                        <div className="text-[10px] text-gray-400 flex items-center gap-1 pt-1">
+                                          <Bell className="w-2.5 h-2.5" />
+                                          Follow-up: {new Date(app.followUpDate).toLocaleDateString()}
+                                        </div>
+                                      )}
+                                      {app.followUpDate && isOverdue(app) && (
+                                        <div className="text-[10px] text-rose-500 flex items-center gap-1 pt-1 font-medium">
+                                          <Bell className="w-2.5 h-2.5" />
+                                          Follow-up: {new Date(app.followUpDate).toLocaleDateString()}
+                                        </div>
+                                      )}
                                     </div>
                                   </motion.div>
                                 </div>

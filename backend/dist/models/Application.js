@@ -75,6 +75,19 @@ const ApplicationSchema = new mongoose_1.Schema({
     jobDescription: {
         type: String
     },
+    // NEW FIELDS - Follow-up reminders
+    followUpDate: {
+        type: Date,
+        default: null
+    },
+    reminderNotes: {
+        type: String,
+        default: ''
+    },
+    lastReminded: {
+        type: Date,
+        default: null
+    },
     createdAt: {
         type: Date,
         default: Date.now

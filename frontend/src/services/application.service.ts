@@ -12,6 +12,10 @@ export interface Application {
   skills?: string[];
   resumeSuggestions?: string[];
   jobDescription?: string;
+  // NEW FIELDS FOR REMINDERS
+  followUpDate?: string;
+  reminderNotes?: string;
+  lastReminded?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,6 +31,9 @@ export interface CreateApplicationData {
   skills?: string[];
   resumeSuggestions?: string[];
   jobDescription?: string;
+  // NEW FIELDS FOR REMINDERS
+  followUpDate?: string | null;
+  reminderNotes?: string;
 }
 
 export const getApplications = async () => {
@@ -46,14 +53,18 @@ export const createApplication = async (data: CreateApplicationData) => {
     salaryRange: data.salaryRange || '',
     skills: data.skills || [],
     resumeSuggestions: data.resumeSuggestions || [],
-    jobDescription: data.jobDescription || ''
+    jobDescription: data.jobDescription || '',
+    // NEW FIELDS
+    followUpDate: data.followUpDate || null,
+    reminderNotes: data.reminderNotes || ''
   };
   
   console.log('📤 Sending payload:', {
     company: payload.company,
     role: payload.role,
     resumeSuggestionsCount: payload.resumeSuggestions.length,
-    jobDescriptionLength: payload.jobDescription.length
+    jobDescriptionLength: payload.jobDescription.length,
+    hasFollowUp: !!payload.followUpDate
   });
   
   const response = await api.post('/applications', payload);
@@ -71,10 +82,17 @@ export const updateApplication = async (id: string, data: Partial<CreateApplicat
     salaryRange: data.salaryRange || '',
     skills: data.skills || [],
     resumeSuggestions: data.resumeSuggestions || [],
-    jobDescription: data.jobDescription || ''
+    jobDescription: data.jobDescription || '',
+    // NEW FIELDS
+    followUpDate: data.followUpDate || null,
+    reminderNotes: data.reminderNotes || ''
   };
   
-  console.log('📤 Updating payload:', { id, resumeSuggestionsCount: payload.resumeSuggestions.length });
+  console.log('📤 Updating payload:', { 
+    id, 
+    resumeSuggestionsCount: payload.resumeSuggestions.length,
+    hasFollowUp: !!payload.followUpDate 
+  });
   
   const response = await api.put(`/applications/${id}`, payload);
   return response.data;

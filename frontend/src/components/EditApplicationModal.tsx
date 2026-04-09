@@ -20,6 +20,9 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
     dateApplied: '',
     status: 'applied',
     salaryRange: '',
+    // NEW FIELDS
+    followUpDate: '',
+    reminderNotes: '',
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -32,7 +35,6 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
 
   useEffect(() => {
     if (application) {
-        
       setFormData({
         company: application.company,
         role: application.role,
@@ -41,10 +43,13 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
         dateApplied: application.dateApplied.split('T')[0],
         status: application.status,
         salaryRange: application.salaryRange || '',
+        // NEW FIELDS - load from application
+        followUpDate: (application as any).followUpDate?.split('T')[0] || '',
+        reminderNotes: (application as any).reminderNotes || '',
       });
       
       // Load existing suggestions or empty array
-      const existingSuggestions = (application as any).resumeSuggestions || [];
+      const existingSuggestions = application.resumeSuggestions || [];
       const existingJobDescription = (application as any).jobDescription || '';
       const existingSkills = (application as any).skills || [];
       
@@ -96,6 +101,9 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
         skills: skills,
         resumeSuggestions: suggestions,
         jobDescription: jobDescription,
+        // NEW FIELDS
+        followUpDate: formData.followUpDate || null,
+        reminderNotes: formData.reminderNotes || '',
       };
       await updateApplication(application!._id, updatedData);
       onSuccess();
@@ -181,6 +189,32 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
                   placeholder="e.g., $120k - $150k"
                 />
               </div>
+              
+              {/* NEW FIELDS - Follow-up Date and Reminder Notes */}
+              <div className="col-span-2">
+                <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">
+                  Follow-up Date <span className="text-gray-400 text-xs">(when to follow up)</span>
+                </label>
+                <input
+                  type="date"
+                  value={formData.followUpDate || ''}
+                  onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white text-sm"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">
+                  Reminder Notes
+                </label>
+                <textarea
+                  value={formData.reminderNotes || ''}
+                  onChange={(e) => setFormData({ ...formData, reminderNotes: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white h-16 text-sm resize-none"
+                  placeholder="e.g., Send thank you email, Follow up on interview decision..."
+                />
+              </div>
+
               <div className="col-span-2">
                 <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Job Description Link</label>
                 <input

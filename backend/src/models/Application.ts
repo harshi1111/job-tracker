@@ -10,8 +10,12 @@ export interface IApplication extends Document {
   status: string;
   salaryRange?: string;
   skills?: string[];
-  resumeSuggestions?: string[];  // MUST HAVE THIS
-  jobDescription?: string;        // MUST HAVE THIS
+  resumeSuggestions?: string[];
+  jobDescription?: string;
+  // NEW FIELDS FOR REMINDERS
+  followUpDate?: Date;        // When to follow up
+  reminderNotes?: string;      // Notes about what to follow up on
+  lastReminded?: Date;         // Last time reminder was sent
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,11 +55,24 @@ const ApplicationSchema = new Schema<IApplication>({
   skills: [{
     type: String
   }],
-  resumeSuggestions: [{   // MUST HAVE THIS
+  resumeSuggestions: [{
     type: String
   }],
-  jobDescription: {       // MUST HAVE THIS
+  jobDescription: {
     type: String
+  },
+  // NEW FIELDS - Follow-up reminders
+  followUpDate: {
+    type: Date,
+    default: null
+  },
+  reminderNotes: {
+    type: String,
+    default: ''
+  },
+  lastReminded: {
+    type: Date,
+    default: null
   },
   createdAt: {
     type: Date,

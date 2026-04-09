@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteApplication = exports.updateApplication = exports.createApplication = exports.getApplications = void 0;
-console.log('🔥 APPLICATION CONTROLLER LOADED - VERSION WITH RESUME SUGGESTIONS');
+console.log('🔥🔥🔥 NEW VERSION APRIL 9 - FOLLOWUP FIX 🔥🔥🔥');
 const Application_1 = __importDefault(require("../models/Application"));
 const getApplications = async (req, res) => {
     try {
@@ -47,6 +47,8 @@ const createApplication = async (req, res) => {
             skills: req.body.skills || [],
             resumeSuggestions: req.body.resumeSuggestions || [],
             jobDescription: req.body.jobDescription || '',
+            followUpDate: req.body.followUpDate || null,
+            reminderNotes: req.body.reminderNotes || '',
             userId: req.userId,
             updatedAt: new Date()
         };
@@ -80,6 +82,8 @@ const updateApplication = async (req, res) => {
             skills: req.body.skills || [],
             resumeSuggestions: req.body.resumeSuggestions || [],
             jobDescription: req.body.jobDescription || '',
+            followUpDate: req.body.followUpDate || null,
+            reminderNotes: req.body.reminderNotes || '',
             updatedAt: new Date()
         };
         console.log('✏️ Updating:', { id, company: updateData.company, suggestionsCount: updateData.resumeSuggestions.length });

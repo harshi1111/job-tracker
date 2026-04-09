@@ -1,4 +1,4 @@
-console.log('🔥 APPLICATION CONTROLLER LOADED - VERSION WITH RESUME SUGGESTIONS');
+console.log('🔥🔥🔥 NEW VERSION APRIL 9 - FOLLOWUP FIX 🔥🔥🔥');
 
 import { Request, Response } from 'express';
 import Application from '../models/Application';
@@ -12,8 +12,8 @@ export const getApplications = async (req: AuthRequest, res: Response) => {
     if (applications.length > 0) {
       console.log('📊 Sample app:', {
         company: applications[0].company,
-        hasResumeSuggestions: !!(applications[0] as any).resumeSuggestions,
-        resumeSuggestionsCount: (applications[0] as any).resumeSuggestions?.length || 0,
+        hasResumeSuggestions: !!applications[0].resumeSuggestions,
+        resumeSuggestionsCount: applications[0].resumeSuggestions?.length || 0,
       });
     }
     
@@ -47,6 +47,8 @@ export const createApplication = async (req: AuthRequest, res: Response) => {
       skills: req.body.skills || [],
       resumeSuggestions: req.body.resumeSuggestions || [],
       jobDescription: req.body.jobDescription || '',
+      followUpDate: req.body.followUpDate || null,
+      reminderNotes: req.body.reminderNotes || '',
       userId: req.userId,
       updatedAt: new Date()
     };
@@ -82,6 +84,8 @@ export const updateApplication = async (req: AuthRequest, res: Response) => {
       skills: req.body.skills || [],
       resumeSuggestions: req.body.resumeSuggestions || [],
       jobDescription: req.body.jobDescription || '',
+      followUpDate: req.body.followUpDate || null,
+      reminderNotes: req.body.reminderNotes || '',
       updatedAt: new Date()
     };
     

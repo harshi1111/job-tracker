@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Briefcase, Phone, Target, Trophy, X } from 'lucide-react';
-
+import type { Application } from '../services/application.service'; 
 interface StatsCardsProps {
-  applications: any[];
+  applications: Application[];
 }
 
 // Rolling number component
@@ -33,6 +33,8 @@ const RollingNumber = ({ value, duration = 1000 }: { value: number; duration?: n
 };
 
 export default function StatsCards({ applications }: StatsCardsProps) {
+    console.log('🔴🔴🔴 STATSCARDS DEBUG - Received applications:', applications.length);
+    console.log('🔴🔴🔴 First 3 statuses:', applications.slice(0,3).map(a => a.status));
   const stats = {
     total: applications.length,
     phoneScreen: applications.filter(a => a.status === 'phone-screen').length,
@@ -40,6 +42,7 @@ export default function StatsCards({ applications }: StatsCardsProps) {
     offer: applications.filter(a => a.status === 'offer').length,
     rejected: applications.filter(a => a.status === 'rejected').length,
   };
+  console.log('🔴🔴🔴 Calculated stats:', stats);
 
   const cards = [
     { label: 'Total', value: stats.total, icon: Briefcase, color: 'text-indigo-600 dark:text-indigo-400', bgLight: 'bg-indigo-50 dark:bg-indigo-950/30' },
@@ -67,7 +70,7 @@ export default function StatsCards({ applications }: StatsCardsProps) {
                 <card.icon className={`w-5 h-5 ${card.color}`} strokeWidth={1.5} />
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                <RollingNumber value={card.value} />
+                {card.label === 'Total' ? card.value : <RollingNumber value={card.value} />}
               </p>
               <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-1">{card.label}</p>
             </div>
