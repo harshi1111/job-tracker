@@ -11,22 +11,16 @@ export interface ParsedJobData {
 
 // Regular API calls (non-streaming)
 export const parseJobDescription = async (jobDescription: string): Promise<ParsedJobData> => {
-  console.log('Calling parse-job API...');
   const response = await api.post('/ai/parse-job', { jobDescription });
-  console.log('Parse response:', response.data);
   return response.data;
 };
 
 export const generateResumeSuggestions = async (jobDescription: string): Promise<{ suggestions: string[] }> => {
-  console.log('Calling resume-suggestions API...');
   const response = await api.post('/ai/resume-suggestions', { jobDescription });
-  console.log('Suggestions response:', response.data);
   return response.data;
 };
 
-// ============================================================
-// STREAMING API CALLS (for real-time AI responses)
-// ============================================================
+// STREAMING API CALLS 
 
 export const parseJobDescriptionStream = async (
   jobDescription: string,
@@ -38,7 +32,7 @@ export const parseJobDescriptionStream = async (
     const token = localStorage.getItem('token');
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
     
-    const response = await fetch(`${API_URL}/api/ai/parse-job-stream`, {
+    const response = await fetch(`${API_URL}/ai/parse-job-stream`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -79,14 +73,12 @@ export const parseJobDescriptionStream = async (
               return;
             }
           } catch (e) {
-            // Skip invalid JSON
-            console.warn('Failed to parse SSE data:', e);
+            
           }
         }
       }
     }
   } catch (error: any) {
-    console.error('Stream parse error:', error);
     onError(error.message || 'Failed to parse job description');
   }
 };
@@ -101,7 +93,7 @@ export const generateResumeSuggestionsStream = async (
     const token = localStorage.getItem('token');
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
     
-    const response = await fetch(`${API_URL}/api/ai/resume-suggestions-stream`, {
+    const response = await fetch(`${API_URL}/ai/resume-suggestions-stream`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -142,14 +134,12 @@ export const generateResumeSuggestionsStream = async (
               return;
             }
           } catch (e) {
-            // Skip invalid JSON
-            console.warn('Failed to parse SSE data:', e);
+            
           }
         }
       }
     }
   } catch (error: any) {
-    console.error('Stream suggestions error:', error);
     onError(error.message || 'Failed to generate suggestions');
   }
 };

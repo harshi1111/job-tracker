@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Briefcase, Phone, Target, Trophy, X } from 'lucide-react';
 import type { Application } from '../services/application.service'; 
+
 interface StatsCardsProps {
   applications: Application[];
 }
@@ -33,8 +34,6 @@ const RollingNumber = ({ value, duration = 1000 }: { value: number; duration?: n
 };
 
 export default function StatsCards({ applications }: StatsCardsProps) {
-    console.log('🔴🔴🔴 STATSCARDS DEBUG - Received applications:', applications.length);
-    console.log('🔴🔴🔴 First 3 statuses:', applications.slice(0,3).map(a => a.status));
   const stats = {
     total: applications.length,
     phoneScreen: applications.filter(a => a.status === 'phone-screen').length,
@@ -42,7 +41,6 @@ export default function StatsCards({ applications }: StatsCardsProps) {
     offer: applications.filter(a => a.status === 'offer').length,
     rejected: applications.filter(a => a.status === 'rejected').length,
   };
-  console.log('🔴🔴🔴 Calculated stats:', stats);
 
   const cards = [
     { label: 'Total', value: stats.total, icon: Briefcase, color: 'text-indigo-600 dark:text-indigo-400', bgLight: 'bg-indigo-50 dark:bg-indigo-950/30' },
