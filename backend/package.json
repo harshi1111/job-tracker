@@ -21,7 +21,9 @@
     "groq-sdk": "^1.1.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.4.1",
+    "debug": "^4.3.4",
     "openai": "^6.33.0"
+    
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
