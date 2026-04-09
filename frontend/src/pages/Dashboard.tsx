@@ -222,19 +222,13 @@ export default function Dashboard() {
 
   const handleHelpClick = () => setShowTour(true);
 
-  // Handle custom date selection without closing immediately
   const handleCustomDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCustomDate(value);
-    if (value) {
-      // Custom date selected
-    }
   };
 
-  // Apply custom date filter
   const applyCustomDate = () => {
     if (customDate) {
-      // You can implement custom date filtering logic here
       setShowDateFilter(false);
     }
   };
@@ -254,18 +248,29 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0f] dark:to-[#12121a] transition-colors duration-300 relative">
       
-      {/* Iridescence Background - ONLY in light mode, clearly visible but subtle */}
+      {/* Iridescence Background - ONLY in light mode */}
       {theme === 'light' && (
         <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.35 }}>
           <Iridescence /> 
         </div>
       )}
       
-      {/* Celebration Effect - ONLY CONFETTI, no popup card */}
+      {/* Subtle Mesh Gradient Background - ONLY in light mode */}
+      {theme === 'light' && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          {/* Base soft gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-100/60 via-white/30 to-cyan-100/60" />
+          <div className="absolute top-20 right-10 w-80 h-80 bg-indigo-300/30 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 left-10 w-80 h-80 bg-cyan-300/30 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-300/25 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-indigo-200/30 to-transparent" />
+        </div>
+      )}
+      
+      {/* Celebration Effect - ONLY CONFETTI */}
       <AnimatePresence>
         {celebration.show && (
           <>
-            {/* Confetti particles falling from top */}
             <div className="fixed inset-0 z-50 pointer-events-none">
               {Array.from({ length: 120 }).map((_, i) => (
                 <motion.div
@@ -294,8 +299,6 @@ export default function Dashboard() {
                 />
               ))}
             </div>
-            
-            
           </>
         )}
       </AnimatePresence>
@@ -321,7 +324,6 @@ export default function Dashboard() {
           : 'bg-gradient-to-r from-white via-white/95 to-indigo-100/90 border-indigo-100'
       }`}>
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-          {/* Logo + Text side by side */}
           <div className="flex items-center gap-3 shrink-0">
             {theme === 'dark' ? (
                 <>
@@ -404,7 +406,6 @@ export default function Dashboard() {
 
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-5 relative z-10">
         
-        {/* REMINDER PANEL - NEW SECTION */}
         <div className="mb-6">
           <ReminderPanel 
             applications={applications} 
@@ -421,7 +422,6 @@ export default function Dashboard() {
               <QuotesPanel />
             </div>
             <div className="flex-1 my-4">
-              
               <StatsCards applications={applications} />
             </div>
             <div className="flex-shrink-0">
@@ -593,7 +593,6 @@ export default function Dashboard() {
                                     transition={{ duration: 0.15 }}
                                     style={{ willChange: 'transform' }}
                                   >
-                                    {/* Overdue Badge */}
                                     {isOverdue(app) && (
                                       <div className="absolute -top-2 -right-2 z-10">
                                         <div className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1">
@@ -628,7 +627,6 @@ export default function Dashboard() {
                                           Edit
                                         </button>
                                       </div>
-                                      {/* Show follow-up date if exists */}
                                       {app.followUpDate && !isOverdue(app) && (
                                         <div className="text-[10px] text-gray-400 flex items-center gap-1 pt-1">
                                           <Bell className="w-2.5 h-2.5" />
@@ -680,7 +678,6 @@ export default function Dashboard() {
       <AddApplicationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={fetchApplications} />
       <EditApplicationModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSuccess={fetchApplications} application={selectedApplication} />
       
-      {/* Confirm Delete Modal */}
       <ConfirmDeleteModal
         isOpen={showDeleteModal}
         onClose={() => {
