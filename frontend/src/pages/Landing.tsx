@@ -8,7 +8,7 @@ import ShapeGrid from '../components/ShapeGrid';
 export default function Landing() {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [mousePosition, _setMousePosition] = useState({ x: 0, y: 0 });
   const [stats, setStats] = useState({
     totalJobs: 0,
     aiAccuracy: 95,
