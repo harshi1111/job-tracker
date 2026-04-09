@@ -15,6 +15,7 @@ import { Download, Sun, Moon, Sparkles, Plus, Search, LogOut, ChevronDown, Calen
 import { useTheme } from '../context/ThemeContext';
 import KanbanTour from '../components/KanbanTour';
 import Iridescence from '../components/Iridescence';
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
 const jobTitles = [
   "Frontend Developer", "Full Stack Engineer", "Data Scientist", 
@@ -55,9 +56,13 @@ export default function Dashboard() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [celebration, setCelebration] = useState<{ show: boolean; company: string; role: string }>({ show: false, company: '', role: '' });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; company: string; role: string } | null>(null);
+  const [customDate, setCustomDate] = useState('');
   
   const kanbanRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   const { theme, toggleTheme } = useTheme();
   const user = getCurrentUser();
@@ -111,10 +116,10 @@ export default function Dashboard() {
     
     setApplications(prev => prev.map(app => app._id === draggableId ? { ...app, status: newStatus } : app));
     
-    // Celebration effect when moved to Offer
+    // Celebration effect when moved to Offer - ONLY CONFETTI
     if (newStatus === 'offer' && movedApp && movedApp.status !== 'offer') {
       setCelebration({ show: true, company: movedApp.company, role: movedApp.role });
-      setTimeout(() => setCelebration({ show: false, company: '', role: '' }), 4000);
+      setTimeout(() => setCelebration({ show: false, company: '', role: '' }), 3000);
     }
     
     try {
@@ -125,14 +130,20 @@ export default function Dashboard() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Delete this application?')) {
-      try {
-        await deleteApplication(id);
-        fetchApplications();
-      } catch (error) {
-        console.error('Failed to delete:', error);
-      }
+  const handleDeleteClick = (id: string, company: string, role: string) => {
+    setDeleteTarget({ id, company, role });
+    setShowDeleteModal(true);
+  };
+  
+  const confirmDelete = async () => {
+    if (deleteTarget) {
+        try {
+            await deleteApplication(deleteTarget.id);
+            fetchApplications();
+        } catch (error) {
+            console.error('Failed to delete:', error);
+        }
+        setDeleteTarget(null);
     }
   };
 
@@ -205,10 +216,29 @@ export default function Dashboard() {
   const clearFilters = () => {
     setSearchTerm('');
     setDateFilter('all');
+    setCustomDate('');
     if (searchInputRef.current) searchInputRef.current.focus();
   };
 
   const handleHelpClick = () => setShowTour(true);
+
+  // Handle custom date selection without closing immediately
+  const handleCustomDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomDate(value);
+    if (value) {
+      // Don't close the dropdown, just store the date
+      console.log('Custom date selected:', value);
+    }
+  };
+
+  // Apply custom date filter
+  const applyCustomDate = () => {
+    if (customDate) {
+      // You can implement custom date filtering logic here
+      setShowDateFilter(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -229,88 +259,44 @@ export default function Dashboard() {
       {theme === 'light' && (
         <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.35 }}>
           <Iridescence /> 
-           
         </div>
       )}
       
-      {/* Celebration Modal - Full screen blur effect */}
+      {/* Celebration Effect - ONLY CONFETTI, no popup card */}
       <AnimatePresence>
         {celebration.show && (
           <>
-            {/* Blur overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/70 backdrop-blur-md z-50"
-              onClick={() => setCelebration({ show: false, company: '', role: '' })}
-            />
+            {/* Confetti particles falling from top */}
+            <div className="fixed inset-0 z-50 pointer-events-none">
+              {Array.from({ length: 120 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ 
+                    x: Math.random() * window.innerWidth,
+                    y: -50,
+                    rotate: 0,
+                    scale: 0
+                  }}
+                  animate={{ 
+                    y: window.innerHeight + 100,
+                    rotate: 360 * (Math.random() * 3 + 1),
+                    scale: [0, 1, 1, 0]
+                  }}
+                  transition={{ 
+                    duration: 2 + Math.random() * 1.5,
+                    delay: Math.random() * 0.5,
+                    ease: "easeOut"
+                  }}
+                  className="absolute w-3 h-3 rounded-sm"
+                  style={{
+                    backgroundColor: `hsl(${Math.random() * 360}, 80%, 60%)`,
+                    left: `${Math.random() * 100}%`,
+                  }}
+                />
+              ))}
+            </div>
             
-            {/* Celebration Card */}
-            <motion.div
-              initial={{ scale: 0.5, opacity: 0, y: -100 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.5, opacity: 0, y: 100 }}
-              transition={{ type: "spring", damping: 20, stiffness: 300 }}
-              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-auto"
-            >
-              <div className="relative">
-                {/* Confetti particles background */}
-                <div className="absolute inset-0 overflow-hidden rounded-2xl">
-                  {Array.from({ length: 50 }).map((_, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ 
-                        x: Math.random() * 400 - 200,
-                        y: -100,
-                        rotate: 0
-                      }}
-                      animate={{ 
-                        y: 400,
-                        rotate: 360 * (Math.random() * 2 + 1),
-                        x: Math.random() * 400 - 200
-                      }}
-                      transition={{ 
-                        duration: 1.5 + Math.random() * 1,
-                        delay: Math.random() * 0.5,
-                        repeat: Infinity
-                      }}
-                      className="absolute w-2 h-2 rounded-full"
-                      style={{
-                        backgroundColor: `hsl(${Math.random() * 360}, 80%, 60%)`,
-                        left: '50%',
-                        top: '50%',
-                      }}
-                    />
-                  ))}
-                </div>
-                
-                {/* Main celebration card */}
-                <div className="relative bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl p-8 shadow-2xl border-2 border-white/30 min-w-[400px] text-center">
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 0.5, repeat: 2 }}
-                  >
-                    <div className="text-6xl mb-4">🎉🎊✨</div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Congratulations! 🏆</h2>
-                    <p className="text-white/90 text-lg mb-1">
-                      You received an offer from
-                    </p>
-                    <p className="text-white text-xl font-bold">
-                      {celebration.company}
-                    </p>
-                    <p className="text-white/80 text-md mt-1">
-                      for the role of <span className="font-semibold">{celebration.role}</span>
-                    </p>
-                    <div className="mt-6 flex justify-center gap-2">
-                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                      <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-100" />
-                      <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-200" />
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
+            
           </>
         )}
       </AnimatePresence>
@@ -496,14 +482,19 @@ export default function Dashboard() {
                         <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Custom Date</div>
                         <div className="flex gap-2">
                           <input
+                            ref={dateInputRef}
                             type="date"
-                            className="flex-1 px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-700 dark:text-gray-300"
-                            onChange={(e) => {
-                              if (e.target.value) {
-                                setShowDateFilter(false);
-                              }
-                            }}
+                            value={customDate}
+                            onChange={handleCustomDateChange}
+                            className="flex-1 px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            placeholder="YYYY-MM-DD"
                           />
+                          <button
+                            onClick={applyCustomDate}
+                            className="px-3 py-2 bg-indigo-500 text-white rounded-lg text-xs font-medium hover:bg-indigo-600 transition-colors"
+                          >
+                            Apply
+                          </button>
                         </div>
                       </div>
                       {(searchTerm || dateFilter !== 'all') && (
@@ -592,7 +583,7 @@ export default function Dashboard() {
                                   className="relative"
                                 >
                                   <motion.div
-                                    className={`bg-white/95 dark:bg-[#1a1a2e] backdrop-blur-sm border rounded-xl p-3 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 group ${
+                                    className={`bg-white/95 dark:bg-[#1a1a2e] border rounded-xl p-3 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 group ${
                                       snapshot.isDragging ? 'shadow-lg rotate-1' : ''
                                     } ${
                                       isOverdue(app) 
@@ -600,6 +591,8 @@ export default function Dashboard() {
                                         : 'border-gray-200 dark:border-gray-700'
                                     }`}
                                     layout
+                                    transition={{ duration: 0.15 }}
+                                    style={{ willChange: 'transform' }}
                                   >
                                     {/* Overdue Badge */}
                                     {isOverdue(app) && (
@@ -617,7 +610,7 @@ export default function Dashboard() {
                                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{app.company}</p>
                                         </div>
                                         <button
-                                          onClick={(e) => { e.stopPropagation(); handleDelete(app._id); }}
+                                          onClick={(e) => { e.stopPropagation(); handleDeleteClick(app._id, app.company, app.role); }}
                                           className="text-xs text-rose-400 hover:text-rose-600 transition-colors opacity-0 group-hover:opacity-100"
                                         >
                                           ✕
@@ -687,6 +680,18 @@ export default function Dashboard() {
       <KanbanTour showTour={showTour} setShowTour={setShowTour} />
       <AddApplicationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={fetchApplications} />
       <EditApplicationModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSuccess={fetchApplications} application={selectedApplication} />
+      
+      {/* Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeleteTarget(null);
+        }}
+        onConfirm={confirmDelete}
+        companyName={deleteTarget?.company || ''}
+        roleName={deleteTarget?.role || ''}
+      />
     </div>
   );
 }

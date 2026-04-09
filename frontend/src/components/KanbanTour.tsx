@@ -9,85 +9,148 @@ interface KanbanTourProps {
 export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
   const [step, setStep] = useState(0);
   const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const tourRef = useRef<HTMLDivElement>(null);
 
   const steps = [
     {
-      title: '✨ Welcome to PATHGRID!',
-      content: 'Let us show you around. This guided tour will help you get started with tracking your job applications.',
+      title: 'Welcome to PATHGRID',
+      content: 'Your AI-powered job tracking companion. Let us walk you through the key features.',
       target: null,
       position: 'center',
     },
     {
-      title: '📊 Your Stats at a Glance',
-      content: 'See your application progress with these quick stats. Numbers roll up automatically!',
+      title: 'Daily Inspiration',
+      content: 'Stay motivated with curated quotes about careers and perseverance.',
+      target: '.flex-shrink-0.border',
+      position: 'bottom',
+    },
+    {
+      title: 'Your Progress Dashboard',
+      content: 'See your application counts at a glance. The numbers roll up smoothly as you add more jobs.',
       target: '.grid-cols-5',
       position: 'bottom',
     },
     {
-      title: '📈 Application Timeline',
-      content: 'Track when you applied to jobs over time. Filter by week, month, or all time.',
-      target: '.rounded-xl.p-5',
+      title: 'Application Timeline',
+      content: 'Visualize your job search journey. Filter by week, month, or see your entire history.',
+      target: '.h-full.border.rounded-xl.overflow-hidden:has(canvas)',
       position: 'bottom',
     },
     {
-      title: '🎯 Drag & Drop Kanban Board',
-      content: 'Drag and drop cards between columns to update status. Move to "Offer" for a celebration!',
+      title: 'Smart Reminders',
+      content: 'Never miss a follow-up! Set reminder dates for each application. Overdue items will be highlighted in red.',
+      target: '.mb-6 > div:first-child',
+      position: 'bottom',
+    },
+    {
+      title: 'Drag & Drop Kanban',
+      content: 'Move cards between columns as you progress. Get a celebration when you land an offer!',
       target: '.grid-cols-1.md\\:grid-cols-5',
       position: 'top',
     },
     {
-      title: '➕ Add New Applications',
-      content: 'Click here to add a job application. AI will parse the job description for you!',
+      title: 'AI-Powered Application',
+      content: 'Click here to add a job. Paste any description and our AI will extract company, role, and skills instantly.',
       target: '.bg-gradient-to-r.from-indigo-600.to-purple-600',
       position: 'bottom',
     },
     {
-      title: '🔍 Search & Filter',
-      content: 'Search by company or role, and filter by date range.',
-      target: '.max-w-md.relative',
+      title: 'Search & Filter',
+      content: 'Quickly find applications by company or role. Filter by date range to focus on recent activity.',
+      target: '.relative.border',
       position: 'bottom',
     },
     {
-      title: '🌙 Dark Mode',
-      content: 'Toggle between light and dark mode for comfortable viewing.',
+      title: 'Export Your Data',
+      content: 'Download all your applications as a CSV file. Perfect for sharing or backup.',
+      target: '.bg-gray-100',
+      position: 'bottom',
+    },
+    {
+      title: 'Dark Mode',
+      content: 'Switch between light and dark themes for comfortable viewing anytime.',
       target: '.p-2.rounded-xl',
       position: 'bottom',
     },
   ];
 
-  // Highlight current element
+  // Auto-show tour for new users
   useEffect(() => {
-    if (showTour) {
-      // Remove all existing highlights
-      document.querySelectorAll('.tour-highlight').forEach(el => {
-        el.classList.remove('tour-highlight');
-      });
+    const hasSeenTour = localStorage.getItem('kanbanTourCompleted');
+    if (!hasSeenTour && !showTour) {
+      const timer = setTimeout(() => {
+        setShowTour(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [showTour, setShowTour]);
+
+  // Update target rect when step changes
+  useEffect(() => {
+    if (showTour && steps[step].target) {
+      let selector = steps[step].target!;
       
-      // Add highlight to current target
-      if (steps[step].target) {
-        const element = document.querySelector(steps[step].target!);
-        if (element) {
-          element.classList.add('tour-highlight');
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // For timeline, use a more specific approach
+      if (step === 3) {
+        // Find the div that contains the ApplicationChart component
+        const chartContainer = document.querySelector('.h-full.border.rounded-xl.overflow-hidden');
+        const allContainers = document.querySelectorAll('.h-full.border.rounded-xl.overflow-hidden');
+        // The second one (index 1) is the chart, first one is quotes
+        const targetElement = allContainers[1] as HTMLElement;
+        
+        if (targetElement) {
+          document.querySelectorAll('.tour-highlight').forEach(el => {
+            el.classList.remove('tour-highlight');
+          });
+          targetElement.classList.add('tour-highlight');
+          targetElement.style.position = 'relative';
+          targetElement.style.zIndex = '1001';
+          const rect = targetElement.getBoundingClientRect();
+          setTargetRect(rect);
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
         }
       }
+      
+      const element = document.querySelector(selector) as HTMLElement;
+      
+      if (element) {
+        document.querySelectorAll('.tour-highlight').forEach(el => {
+          el.classList.remove('tour-highlight');
+        });
+        element.classList.add('tour-highlight');
+        element.style.position = 'relative';
+        element.style.zIndex = '1001';
+        const rect = element.getBoundingClientRect();
+        setTargetRect(rect);
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        console.warn(`Element not found for selector: ${selector}`);
+        setTargetRect(null);
+      }
+    } else {
+      setTargetRect(null);
     }
     
     return () => {
       document.querySelectorAll('.tour-highlight').forEach(el => {
         el.classList.remove('tour-highlight');
+        (el as HTMLElement).style.position = '';
+        (el as HTMLElement).style.zIndex = '';
       });
     };
   }, [step, showTour, steps]);
 
-  // Update position for tour box
   useEffect(() => {
     const updatePosition = () => {
       if (showTour && tourRef.current) {
         let targetElement = null;
         
-        if (steps[step].target) {
+        if (step === 3) {
+          const allContainers = document.querySelectorAll('.h-full.border.rounded-xl.overflow-hidden');
+          targetElement = allContainers[1] as HTMLElement;
+        } else if (steps[step].target) {
           targetElement = document.querySelector(steps[step].target!);
         }
         
@@ -106,7 +169,6 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
             left = rect.left + rect.width / 2 - tourRect.width / 2;
           }
           
-          // Keep within viewport
           top = Math.max(20, Math.min(top, window.innerHeight - tourRect.height - 20));
           left = Math.max(20, Math.min(left, window.innerWidth - tourRect.width - 20));
         }
@@ -145,23 +207,28 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
   const handleClose = () => {
     document.querySelectorAll('.tour-highlight').forEach(el => {
       el.classList.remove('tour-highlight');
+      (el as HTMLElement).style.position = '';
+      (el as HTMLElement).style.zIndex = '';
     });
     setShowTour(false);
     localStorage.setItem('kanbanTourCompleted', 'true');
     setStep(0);
+    setTargetRect(null);
   };
 
   if (!showTour) return null;
+
+  const currentStep = steps[step];
 
   return (
     <>
       <style>{`
         .tour-highlight {
-          position: relative;
-          z-index: 1001;
+          position: relative !important;
           animation: tourPulse 1s ease-in-out infinite;
-          box-shadow: 0 0 0 4px #6366f1, 0 0 0 8px rgba(99, 102, 241, 0.3);
-          border-radius: 0.75rem;
+          box-shadow: 0 0 0 4px #6366f1, 0 0 0 8px rgba(99, 102, 241, 0.3) !important;
+          border-radius: 0.75rem !important;
+          z-index: 1001 !important;
         }
         
         @keyframes tourPulse {
@@ -174,12 +241,38 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
         }
       `}</style>
       
-      {/* Semi-transparent overlay - NOT full blur to avoid blank screen */}
-      <div 
-        className="fixed inset-0 bg-black/40 z-50"
-        onClick={handleClose}
-      />
+      {/* SVG Blur Overlay with Cutout */}
+      <svg 
+        className="fixed inset-0 w-full h-full z-50 pointer-events-none"
+        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}
+      >
+        <defs>
+          <mask id="tourMask">
+            <rect width="100%" height="100%" fill="white" />
+            {targetRect && (
+              <rect
+                x={targetRect.left - 8}
+                y={targetRect.top - 8}
+                width={targetRect.width + 16}
+                height={targetRect.height + 16}
+                fill="black"
+                rx="12"
+              />
+            )}
+          </mask>
+        </defs>
+        
+        <rect 
+          width="100%" 
+          height="100%" 
+          fill="black" 
+          fillOpacity="0.5"
+          mask="url(#tourMask)"
+          style={{ backdropFilter: 'blur(8px)' }}
+        />
+      </svg>
       
+      {/* Tour Card */}
       <div
         ref={tourRef}
         style={{
@@ -200,15 +293,15 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
         
         <div className="mb-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-2">
-            <span className="text-lg">
-              {step === 0 ? '✨' : step === 1 ? '📊' : step === 2 ? '📈' : step === 3 ? '🎯' : step === 4 ? '➕' : step === 5 ? '🔍' : '🌙'}
+            <span className="text-white text-sm font-bold">
+              {step + 1}
             </span>
           </div>
           <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
-            {steps[step].title}
+            {currentStep.title}
           </h3>
           <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-            {steps[step].content}
+            {currentStep.content}
           </p>
         </div>
         
@@ -243,7 +336,7 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
               className="px-4 py-1 text-xs font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-1"
             >
               {step === steps.length - 1 ? (
-                'Got it! ✨'
+                'Got it'
               ) : (
                 <>
                   Next
