@@ -69,6 +69,12 @@ const ApplicationSchema = new mongoose_1.Schema({
     skills: [{
             type: String
         }],
+    resumeSuggestions: [{
+            type: String
+        }],
+    jobDescription: {
+        type: String
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -78,6 +84,4 @@ const ApplicationSchema = new mongoose_1.Schema({
         default: Date.now
     }
 });
-// Remove the pre-save middleware entirely - it's causing the error
-// We'll handle updatedAt in the controller instead
 exports.default = mongoose_1.default.model('Application', ApplicationSchema);

@@ -50,7 +50,7 @@ export default function StatsCards({ applications }: StatsCardsProps) {
   ];
 
   return (
-    <div className="bg-white dark:bg-[#1a1a2e] rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm h-full">
+    <div className="bg-white dark:bg-[#1a1a2e] rounded-xl border border-indigo-200 dark:border-gray-700 shadow-md h-full">
       <div className="grid grid-cols-5 h-full">
         {cards.map((card, idx) => (
           <motion.div

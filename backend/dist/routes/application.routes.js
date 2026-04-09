@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const auth_1 = require("../middleware/auth");
 const application_controller_1 = require("../controllers/application.controller");
 const router = express_1.default.Router();
+console.log('🔥 APPLICATION ROUTES REGISTERED - POST / will use createApplication');
 router.use(auth_1.authenticate);
 router.get('/', application_controller_1.getApplications);
 router.post('/', application_controller_1.createApplication);

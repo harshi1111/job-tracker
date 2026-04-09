@@ -1,3 +1,5 @@
+console.log('🔥 APPLICATION CONTROLLER LOADED - VERSION WITH RESUME SUGGESTIONS');
+
 import { Request, Response } from 'express';
 import Application from '../models/Application';
 import { AuthRequest } from '../middleware/auth';
@@ -5,6 +7,16 @@ import { AuthRequest } from '../middleware/auth';
 export const getApplications = async (req: AuthRequest, res: Response) => {
   try {
     const applications = await Application.find({ userId: req.userId }).sort({ createdAt: -1 });
+    
+    console.log(`📋 Returning ${applications.length} applications`);
+    if (applications.length > 0) {
+      console.log('📊 Sample app:', {
+        company: applications[0].company,
+        hasResumeSuggestions: !!(applications[0] as any).resumeSuggestions,
+        resumeSuggestionsCount: (applications[0] as any).resumeSuggestions?.length || 0,
+      });
+    }
+    
     res.json(applications);
   } catch (error) {
     console.error('Get applications error:', error);
@@ -14,24 +26,70 @@ export const getApplications = async (req: AuthRequest, res: Response) => {
 
 export const createApplication = async (req: AuthRequest, res: Response) => {
   try {
-    const application = await Application.create({
-      ...req.body,
+    console.log('🔥🔥🔥 CREATE APPLICATION CALLED 🔥🔥🔥');
+    console.log('📥 RAW BODY received:', {
+      company: req.body.company,
+      role: req.body.role,
+      hasResumeSuggestions: !!req.body.resumeSuggestions,
+      resumeSuggestionsLength: req.body.resumeSuggestions?.length,
+      hasJobDescription: !!req.body.jobDescription,
+      jobDescriptionLength: req.body.jobDescription?.length
+    });
+    
+    const applicationData = {
+      company: req.body.company,
+      role: req.body.role,
+      jobDescriptionLink: req.body.jobDescriptionLink,
+      notes: req.body.notes,
+      dateApplied: req.body.dateApplied,
+      status: req.body.status,
+      salaryRange: req.body.salaryRange,
+      skills: req.body.skills || [],
+      resumeSuggestions: req.body.resumeSuggestions || [],
+      jobDescription: req.body.jobDescription || '',
       userId: req.userId,
       updatedAt: new Date()
+    };
+    
+    console.log('✅ Creating app with:', {
+      company: applicationData.company,
+      resumeSuggestionsCount: applicationData.resumeSuggestions.length,
+      jobDescriptionLength: applicationData.jobDescription.length
     });
+    
+    const application = await Application.create(applicationData);
+    console.log('✅ Application saved successfully:', application._id);
     res.status(201).json(application);
-  } catch (error) {
-    console.error('Create application error:', error);
-    res.status(500).json({ error: 'Failed to create application' });
+  } catch (error: any) {
+    console.error('❌ Create application ERROR:', error.message);
+    console.error('❌ Full error details:', error);
+    res.status(500).json({ error: `Failed to create application: ${error.message}` });
   }
 };
 
 export const updateApplication = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
+    
+    const updateData = {
+      company: req.body.company,
+      role: req.body.role,
+      jobDescriptionLink: req.body.jobDescriptionLink,
+      notes: req.body.notes,
+      dateApplied: req.body.dateApplied,
+      status: req.body.status,
+      salaryRange: req.body.salaryRange,
+      skills: req.body.skills || [],
+      resumeSuggestions: req.body.resumeSuggestions || [],
+      jobDescription: req.body.jobDescription || '',
+      updatedAt: new Date()
+    };
+    
+    console.log('✏️ Updating:', { id, company: updateData.company, suggestionsCount: updateData.resumeSuggestions.length });
+    
     const application = await Application.findOneAndUpdate(
       { _id: id, userId: req.userId },
-      { ...req.body, updatedAt: new Date() },
+      updateData,
       { new: true }
     );
     

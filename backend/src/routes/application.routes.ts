@@ -4,6 +4,8 @@ import { getApplications, createApplication, updateApplication, deleteApplicatio
 
 const router = express.Router();
 
+console.log('🔥 APPLICATION ROUTES REGISTERED - POST / will use createApplication');
+
 router.use(authenticate);
 
 router.get('/', getApplications);

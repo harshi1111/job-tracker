@@ -10,6 +10,8 @@ export interface IApplication extends Document {
   status: string;
   salaryRange?: string;
   skills?: string[];
+  resumeSuggestions?: string[];  // MUST HAVE THIS
+  jobDescription?: string;        // MUST HAVE THIS
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,6 +51,12 @@ const ApplicationSchema = new Schema<IApplication>({
   skills: [{
     type: String
   }],
+  resumeSuggestions: [{   // MUST HAVE THIS
+    type: String
+  }],
+  jobDescription: {       // MUST HAVE THIS
+    type: String
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -58,8 +66,5 @@ const ApplicationSchema = new Schema<IApplication>({
     default: Date.now
   }
 });
-
-// Remove the pre-save middleware entirely - it's causing the error
-// We'll handle updatedAt in the controller instead
 
 export default mongoose.model<IApplication>('Application', ApplicationSchema);

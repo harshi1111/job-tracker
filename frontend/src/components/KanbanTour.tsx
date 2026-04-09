@@ -13,118 +13,109 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
 
   const steps = [
     {
-      title: '✨ Welcome to JobTrackAI!',
+      title: '✨ Welcome to PATHGRID!',
       content: 'Let us show you around. This guided tour will help you get started with tracking your job applications.',
       target: null,
       position: 'center',
     },
     {
       title: '📊 Your Stats at a Glance',
-      content: 'See your application progress with these quick stats.',
-      target: '.grid-cols-5.gap-3',
+      content: 'See your application progress with these quick stats. Numbers roll up automatically!',
+      target: '.grid-cols-5',
       position: 'bottom',
     },
     {
       title: '📈 Application Timeline',
-      content: 'Track when you applied to jobs over time.',
-      target: '.rounded-2xl.p-5',
+      content: 'Track when you applied to jobs over time. Filter by week, month, or all time.',
+      target: '.rounded-xl.p-5',
       position: 'bottom',
     },
     {
       title: '🎯 Drag & Drop Kanban Board',
-      content: 'Drag and drop cards between columns to update status.',
+      content: 'Drag and drop cards between columns to update status. Move to "Offer" for a celebration!',
       target: '.grid-cols-1.md\\:grid-cols-5',
       position: 'top',
     },
     {
       title: '➕ Add New Applications',
-      content: 'Click here to add a job application with AI parsing.',
+      content: 'Click here to add a job application. AI will parse the job description for you!',
       target: '.bg-gradient-to-r.from-indigo-600.to-purple-600',
       position: 'bottom',
     },
     {
       title: '🔍 Search & Filter',
-      content: 'Search by company or role, and filter by date.',
+      content: 'Search by company or role, and filter by date range.',
       target: '.max-w-md.relative',
       position: 'bottom',
     },
     {
       title: '🌙 Dark Mode',
-      content: 'Toggle between light and dark mode.',
-      target: '.p-1.5.rounded-xl:last-of-type',
+      content: 'Toggle between light and dark mode for comfortable viewing.',
+      target: '.p-2.rounded-xl',
       position: 'bottom',
     },
   ];
 
+  // Highlight current element
   useEffect(() => {
-    if (showTour && steps[step].target) {
-      // Remove highlight from previous element
+    if (showTour) {
+      // Remove all existing highlights
       document.querySelectorAll('.tour-highlight').forEach(el => {
         el.classList.remove('tour-highlight');
       });
       
-      // Add highlight to current element
-      const element = document.querySelector(steps[step].target!);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        element.classList.add('tour-highlight');
-        
-        // Calculate position for tour box
-        const rect = element.getBoundingClientRect();
-        const tourRect = tourRef.current?.getBoundingClientRect();
-        
-        if (tourRect) {
-          let top = 0;
-          let left = rect.left + rect.width / 2 - tourRect.width / 2;
-          
-          if (steps[step].position === 'bottom') {
-            top = rect.bottom + 16;
-          } else if (steps[step].position === 'top') {
-            top = rect.top - tourRect.height - 16;
-          } else {
-            top = window.innerHeight / 2 - tourRect.height / 2;
-            left = window.innerWidth / 2 - tourRect.width / 2;
-          }
-          
-          // Ensure tour box stays within viewport
-          top = Math.max(16, Math.min(top, window.innerHeight - tourRect.height - 16));
-          left = Math.max(16, Math.min(left, window.innerWidth - tourRect.width - 16));
-          
-          setPosition({ top, left });
+      // Add highlight to current target
+      if (steps[step].target) {
+        const element = document.querySelector(steps[step].target!);
+        if (element) {
+          element.classList.add('tour-highlight');
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
     }
     
     return () => {
-      // Cleanup - don't remove highlights immediately to avoid flicker
+      document.querySelectorAll('.tour-highlight').forEach(el => {
+        el.classList.remove('tour-highlight');
+      });
     };
   }, [step, showTour, steps]);
 
-  // Update position on scroll/resize
+  // Update position for tour box
   useEffect(() => {
     const updatePosition = () => {
-      if (showTour && steps[step].target && tourRef.current) {
-        const element = document.querySelector(steps[step].target!);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          const tourRect = tourRef.current.getBoundingClientRect();
-          
-          let top = 0;
-          let left = rect.left + rect.width / 2 - tourRect.width / 2;
+      if (showTour && tourRef.current) {
+        let targetElement = null;
+        
+        if (steps[step].target) {
+          targetElement = document.querySelector(steps[step].target!);
+        }
+        
+        const tourRect = tourRef.current.getBoundingClientRect();
+        let top = window.innerHeight / 2 - tourRect.height / 2;
+        let left = window.innerWidth / 2 - tourRect.width / 2;
+        
+        if (targetElement) {
+          const rect = targetElement.getBoundingClientRect();
           
           if (steps[step].position === 'bottom') {
-            top = rect.bottom + 16;
+            top = rect.bottom + 20;
+            left = rect.left + rect.width / 2 - tourRect.width / 2;
           } else if (steps[step].position === 'top') {
-            top = rect.top - tourRect.height - 16;
+            top = rect.top - tourRect.height - 20;
+            left = rect.left + rect.width / 2 - tourRect.width / 2;
           }
           
-          top = Math.max(16, Math.min(top, window.innerHeight - tourRect.height - 16));
-          left = Math.max(16, Math.min(left, window.innerWidth - tourRect.width - 16));
-          
-          setPosition({ top, left });
+          // Keep within viewport
+          top = Math.max(20, Math.min(top, window.innerHeight - tourRect.height - 20));
+          left = Math.max(20, Math.min(left, window.innerWidth - tourRect.width - 20));
         }
+        
+        setPosition({ top, left });
       }
     };
+    
+    updatePosition();
     
     if (showTour) {
       window.addEventListener('scroll', updatePosition);
@@ -135,7 +126,7 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
       window.removeEventListener('scroll', updatePosition);
       window.removeEventListener('resize', updatePosition);
     };
-  }, [showTour, step, steps]);
+  }, [step, showTour, steps]);
 
   const handleNext = () => {
     if (step < steps.length - 1) {
@@ -152,11 +143,9 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
   };
 
   const handleClose = () => {
-    // Remove all highlights first
     document.querySelectorAll('.tour-highlight').forEach(el => {
       el.classList.remove('tour-highlight');
     });
-    // Close the tour
     setShowTour(false);
     localStorage.setItem('kanbanTourCompleted', 'true');
     setStep(0);
@@ -183,22 +172,13 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
             box-shadow: 0 0 0 6px #6366f1, 0 0 0 12px rgba(99, 102, 241, 0.5);
           }
         }
-        
-        /* Blur everything except highlighted element */
-        .tour-blur {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.7);
-          backdrop-filter: blur(4px);
-          z-index: 1000;
-        }
       `}</style>
       
-      {/* Blur overlay */}
-      <div className="tour-blur" onClick={handleClose} />
+      {/* Semi-transparent overlay - NOT full blur to avoid blank screen */}
+      <div 
+        className="fixed inset-0 bg-black/40 z-50"
+        onClick={handleClose}
+      />
       
       <div
         ref={tourRef}
@@ -209,7 +189,7 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
           transition: 'all 0.3s ease',
           zIndex: 1002,
         }}
-        className="w-80 bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-4"
+        className="w-80 bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-4 border-2 border-indigo-500"
       >
         <button
           onClick={handleClose}

@@ -13,6 +13,7 @@ import StatsCards from '../components/StatsCards';
 import { Download, Sun, Moon, Sparkles, Plus, Search, LogOut, ChevronDown, Calendar, Filter, X, HelpCircle, Edit3 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import KanbanTour from '../components/KanbanTour';
+import Iridescence from '../components/Iridescence';
 
 const jobTitles = [
   "Frontend Developer", "Full Stack Engineer", "Data Scientist", 
@@ -54,13 +55,13 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && applications.length >= 0) {
       const hasSeenTour = localStorage.getItem('kanbanTourCompleted');
-      if (!hasSeenTour) {
-        setTimeout(() => setShowTour(true), 500);
+      if (!hasSeenTour && !showTour) {
+        setTimeout(() => setShowTour(true), 1000);
       }
     }
-  }, [loading]);
+  }, [loading, applications.length]);
 
   const fetchApplications = async () => {
     try {
@@ -70,6 +71,23 @@ export default function Dashboard() {
       console.error('Failed to fetch applications:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getColumnBorderColor = (columnId: string) => {
+    switch(columnId) {
+      case 'applied':
+        return 'border-indigo-500';
+      case 'phone-screen':
+        return 'border-amber-500';
+      case 'interview':
+        return 'border-purple-500';
+      case 'offer':
+        return 'border-emerald-500';
+      case 'rejected':
+        return 'border-rose-500';
+      default:
+        return 'border-gray-500';
     }
   };
 
@@ -191,40 +209,110 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0f] dark:to-[#12121a] transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0f] dark:to-[#12121a] transition-colors duration-300 relative">
       
-      {/* Celebration Animation */}
+      {/* Iridescence Background - ONLY in light mode, clearly visible but subtle */}
+      {theme === 'light' && (
+        <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.35 }}>
+          <Iridescence 
+            color={[0.5, 0.6, 0.9]} 
+            speed={0.6} 
+            amplitude={0.05} 
+            mouseReact={true} 
+          />
+        </div>
+      )}
+      
+      {/* Celebration Modal - Full screen blur effect */}
       <AnimatePresence>
         {celebration.show && (
-          <motion.div
-            initial={{ opacity: 0, y: -100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -100 }}
-            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none"
-          >
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl px-8 py-4 shadow-2xl text-center">
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 0.5, repeat: 2 }}
-              >
-                <div className="text-4xl mb-2">🎉</div>
-                <p className="font-bold text-lg">Offer Received! 🎊</p>
-                <p className="text-sm opacity-90">{celebration.role} @ {celebration.company}</p>
-                <p className="text-xs mt-1">Congratulations! You're one step closer! 🚀</p>
-              </motion.div>
-            </div>
-          </motion.div>
+          <>
+            {/* Blur overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/70 backdrop-blur-md z-50"
+              onClick={() => setCelebration({ show: false, company: '', role: '' })}
+            />
+            
+            {/* Celebration Card */}
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0, y: -100 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.5, opacity: 0, y: 100 }}
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-auto"
+            >
+              <div className="relative">
+                {/* Confetti particles background */}
+                <div className="absolute inset-0 overflow-hidden rounded-2xl">
+                  {Array.from({ length: 50 }).map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ 
+                        x: Math.random() * 400 - 200,
+                        y: -100,
+                        rotate: 0
+                      }}
+                      animate={{ 
+                        y: 400,
+                        rotate: 360 * (Math.random() * 2 + 1),
+                        x: Math.random() * 400 - 200
+                      }}
+                      transition={{ 
+                        duration: 1.5 + Math.random() * 1,
+                        delay: Math.random() * 0.5,
+                        repeat: Infinity
+                      }}
+                      className="absolute w-2 h-2 rounded-full"
+                      style={{
+                        backgroundColor: `hsl(${Math.random() * 360}, 80%, 60%)`,
+                        left: '50%',
+                        top: '50%',
+                      }}
+                    />
+                  ))}
+                </div>
+                
+                {/* Main celebration card */}
+                <div className="relative bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl p-8 shadow-2xl border-2 border-white/30 min-w-[400px] text-center">
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 0.5, repeat: 2 }}
+                  >
+                    <div className="text-6xl mb-4">🎉🎊✨</div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Congratulations! 🏆</h2>
+                    <p className="text-white/90 text-lg mb-1">
+                      You received an offer from
+                    </p>
+                    <p className="text-white text-xl font-bold">
+                      {celebration.company}
+                    </p>
+                    <p className="text-white/80 text-md mt-1">
+                      for the role of <span className="font-semibold">{celebration.role}</span>
+                    </p>
+                    <div className="mt-6 flex justify-center gap-2">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-100" />
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse delay-200" />
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
-      <div className="relative overflow-hidden py-2 bg-white/30 dark:bg-black/20 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
+      <div className="relative overflow-hidden py-2 bg-white/30 dark:bg-black/20 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 z-10">
         <motion.div
           animate={{ x: [0, -1920] }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
           className="flex gap-8 whitespace-nowrap"
         >
           {[...jobTitles, ...jobTitles].map((title, i) => (
-            <span key={i} className="text-xs text-gray-500 dark:text-gray-400">
+            <span key={i} className="text-xs text-gray-600 dark:text-gray-400">
               {title}
               <span className="mx-4 text-indigo-400">✦</span>
             </span>
@@ -235,13 +323,22 @@ export default function Dashboard() {
       <header className={`sticky top-0 z-40 backdrop-blur-xl border-b transition-all ${
         theme === 'dark' 
           ? 'bg-[#0a0a0f]/80 border-gray-800' 
-          : 'bg-gradient-to-r from-indigo-50/90 via-white/90 to-purple-50/90 border-indigo-100'
+          : 'bg-gradient-to-r from-white via-white/95 to-indigo-100/90 border-indigo-100'
       }`}>
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           {/* Logo + Text side by side */}
           <div className="flex items-center gap-3 shrink-0">
-            <img src="/logoalone.png" alt="PATHGRID Logo" className="w-10 h-10 object-contain" />
-            <img src="/textonly.png" alt="PATHGRID" className="h-6 object-contain" />
+            {theme === 'dark' ? (
+                <>
+                  <img src="/logoalone.png" alt="PATHGRID Logo" className="w-10 h-10 object-contain" />
+                  <img src="/textonly.png" alt="PATHGRID" className="h-6 object-contain" />
+                </>
+            ) : (
+                <>
+                  <img src="/logoalonewhite.png" alt="PATHGRID Logo" className="w-10 h-10 object-contain" />
+                  <img src="/textonlywhite.png" alt="PATHGRID" className="h-6 object-contain" />
+                </>
+            )}
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
@@ -277,7 +374,7 @@ export default function Dashboard() {
                   {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden md:block">{user?.name?.split(' ')[0]}</span>
-                <ChevronDown className="w-3 h-3 text-gray-400 hidden md:block" />
+                <ChevronDown className="w-3 h-3 text-gray-500 hidden md:block" />
               </button>
 
               <AnimatePresence>
@@ -292,7 +389,7 @@ export default function Dashboard() {
                     >
                       <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
                         <p className="text-xs font-semibold text-gray-900 dark:text-white">{user?.name}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{user?.email}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{user?.email}</p>
                       </div>
                       <button
                         onClick={handleLogout}
@@ -310,11 +407,11 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-5">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-5 relative z-10">
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <div className="flex flex-col h-full">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white/90 dark:bg-transparent backdrop-blur-sm">
               <QuotesPanel />
             </div>
             <div className="flex-1 my-4">
@@ -322,19 +419,19 @@ export default function Dashboard() {
             </div>
             <div className="flex-shrink-0">
               <div className="relative">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <div className="relative border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white/90 dark:bg-transparent backdrop-blur-sm">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input
                     ref={searchInputRef}
                     type="text"
                     placeholder="Search by company or role..."
                     value={searchTerm}
                     onChange={handleSearch}
-                    className="w-full pl-9 pr-24 py-3 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+                    className="w-full pl-9 pr-24 py-3 bg-white/90 dark:bg-[#1a1a2e] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
                   />
                   <button
                     onClick={() => setShowDateFilter(!showDateFilter)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-xs flex items-center gap-1 text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-xs flex items-center gap-1 text-gray-600 hover:text-gray-800 dark:text-gray-400"
                   >
                     <Filter className="w-3 h-3" />
                     {dateFilter !== 'all' && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />}
@@ -349,7 +446,7 @@ export default function Dashboard() {
                       exit={{ opacity: 0, y: -10 }}
                       className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-30 p-3"
                     >
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Date Range</div>
+                      <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Date Range</div>
                       <div className="space-y-1">
                         {[
                           { value: 'all', label: 'All time' },
@@ -374,7 +471,7 @@ export default function Dashboard() {
                         ))}
                       </div>
                       <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Custom Date</div>
+                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Custom Date</div>
                         <div className="flex gap-2">
                           <input
                             type="date"
@@ -402,14 +499,14 @@ export default function Dashboard() {
             </div>
           </div>
           
-          <div className="h-full">
+          <div className="h-full border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white/90 dark:bg-transparent backdrop-blur-sm">
             <ApplicationChart applications={applications} />
           </div>
         </div>
 
         {(searchTerm || dateFilter !== 'all') && (
           <div className="flex items-center gap-2 mb-4 flex-wrap">
-            <span className="text-xs text-gray-500">Active filters:</span>
+            <span className="text-xs text-gray-600">Active filters:</span>
             {searchTerm && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs">
                 Search: "{searchTerm}"
@@ -434,10 +531,10 @@ export default function Dashboard() {
                 onClick={handleHelpClick}
                 className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
               >
-                <HelpCircle className="w-4 h-4 text-gray-400 group-hover:text-indigo-500 transition-colors" />
+                <HelpCircle className="w-4 h-4 text-gray-500 group-hover:text-indigo-500 transition-colors" />
               </button>
             </div>
-            <p className="text-xs text-gray-400">Drag and drop cards to move between stages</p>
+            <p className="text-xs text-gray-500">Drag and drop cards to move between stages</p>
           </div>
 
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -446,13 +543,13 @@ export default function Dashboard() {
                 const cards = getFilteredApplicationsByStatus(column.id);
                 return (
                   <div key={column.id} className="flex flex-col">
-                    <div className="bg-gray-100/50 dark:bg-[#1a1a2e]/50 rounded-xl px-3 py-2 mb-3 flex items-center justify-between">
+                    <div className={`bg-gray-100/50 dark:bg-[#1a1a2e]/50 rounded-xl px-3 py-2 mb-3 flex items-center justify-between border-l-4 ${getColumnBorderColor(column.id)}`}>
                       <button
                         className={`text-sm font-semibold transition-colors ${column.color} ${column.hoverColor}`}
                       >
                         {column.title}
                       </button>
-                      <span className="text-xs font-bold text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-black/20 rounded-lg px-2 py-0.5">{cards.length}</span>
+                      <span className="text-xs font-bold text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-black/20 rounded-lg px-2 py-0.5">{cards.length}</span>
                     </div>
 
                     <Droppable droppableId={column.id}>
@@ -472,7 +569,7 @@ export default function Dashboard() {
                                   onClick={() => handleCardClick(app)}
                                 >
                                   <motion.div
-                                    className={`bg-white dark:bg-[#1a1a2e] border border-gray-200 dark:border-gray-700 rounded-xl p-3 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 group ${
+                                    className={`bg-white/95 dark:bg-[#1a1a2e] backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl p-3 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 group ${
                                       snapshot.isDragging ? 'shadow-lg rotate-1' : ''
                                     }`}
                                     layout
@@ -481,7 +578,7 @@ export default function Dashboard() {
                                       <div className="flex items-start justify-between">
                                         <div className="flex-1">
                                           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{app.role}</h3>
-                                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{app.company}</p>
+                                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{app.company}</p>
                                         </div>
                                         <button
                                           onClick={(e) => { e.stopPropagation(); handleDelete(app._id); }}
@@ -491,7 +588,7 @@ export default function Dashboard() {
                                         </button>
                                       </div>
                                       <div className="flex items-center justify-between pt-1 border-t border-gray-100 dark:border-gray-800">
-                                        <span className="text-[10px] text-gray-400 flex items-center gap-1">
+                                        <span className="text-[10px] text-gray-500 flex items-center gap-1">
                                           <Calendar className="w-2.5 h-2.5" />
                                           {new Date(app.dateApplied).toLocaleDateString()}
                                         </span>
@@ -525,7 +622,7 @@ export default function Dashboard() {
                 <Sparkles className="w-8 h-8 text-indigo-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No applications yet</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Add your first application to get started</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Add your first application to get started</p>
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all"

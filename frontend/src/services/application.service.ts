@@ -10,6 +10,8 @@ export interface Application {
   status: 'applied' | 'phone-screen' | 'interview' | 'offer' | 'rejected';
   salaryRange?: string;
   skills?: string[];
+  resumeSuggestions?: string[];
+  jobDescription?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,6 +25,8 @@ export interface CreateApplicationData {
   status?: string;
   salaryRange?: string;
   skills?: string[];
+  resumeSuggestions?: string[];
+  jobDescription?: string;
 }
 
 export const getApplications = async () => {
@@ -31,12 +35,48 @@ export const getApplications = async () => {
 };
 
 export const createApplication = async (data: CreateApplicationData) => {
-  const response = await api.post('/applications', data);
+  // EXPLICITLY build the payload to ensure all fields are sent
+  const payload = {
+    company: data.company,
+    role: data.role,
+    jobDescriptionLink: data.jobDescriptionLink || '',
+    notes: data.notes || '',
+    dateApplied: data.dateApplied,
+    status: data.status || 'applied',
+    salaryRange: data.salaryRange || '',
+    skills: data.skills || [],
+    resumeSuggestions: data.resumeSuggestions || [],
+    jobDescription: data.jobDescription || ''
+  };
+  
+  console.log('📤 Sending payload:', {
+    company: payload.company,
+    role: payload.role,
+    resumeSuggestionsCount: payload.resumeSuggestions.length,
+    jobDescriptionLength: payload.jobDescription.length
+  });
+  
+  const response = await api.post('/applications', payload);
   return response.data;
 };
 
 export const updateApplication = async (id: string, data: Partial<CreateApplicationData>) => {
-  const response = await api.put(`/applications/${id}`, data);
+  const payload = {
+    company: data.company,
+    role: data.role,
+    jobDescriptionLink: data.jobDescriptionLink || '',
+    notes: data.notes || '',
+    dateApplied: data.dateApplied,
+    status: data.status,
+    salaryRange: data.salaryRange || '',
+    skills: data.skills || [],
+    resumeSuggestions: data.resumeSuggestions || [],
+    jobDescription: data.jobDescription || ''
+  };
+  
+  console.log('📤 Updating payload:', { id, resumeSuggestionsCount: payload.resumeSuggestions.length });
+  
+  const response = await api.put(`/applications/${id}`, payload);
   return response.data;
 };
 

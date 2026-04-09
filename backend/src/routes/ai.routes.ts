@@ -4,7 +4,6 @@ import { authenticate } from '../middleware/auth';
 
 const router = express.Router();
 
-// Make sure authenticate is applied
 router.use(authenticate);
 
 router.post('/parse-job', parseJobDescription);

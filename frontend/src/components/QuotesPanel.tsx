@@ -45,6 +45,7 @@ export default function QuotesPanel() {
   return (
     <div className="bg-gradient-to-br from-indigo-50/50 via-purple-50/30 to-pink-50/50 dark:from-indigo-950/20 dark:via-purple-950/10 dark:to-pink-950/20 rounded-xl overflow-hidden border border-indigo-200/50 dark:border-indigo-800/30 shadow-sm h-full">
       <div className="p-6 text-center">
+        <div className="mb-2 text-indigo-500 dark:text-indigo-400 text-xs font-medium tracking-wider uppercase">  Daily Inspiration</div>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}

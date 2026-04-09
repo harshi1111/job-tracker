@@ -23,14 +23,16 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [showAISuggestions, setShowAISuggestions] = useState(false);
+  const [showAISuggestions, setShowAISuggestions] = useState(true);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
+  const [skills, setSkills] = useState<string[]>([]);
   const [jobDescription, setJobDescription] = useState('');
 
   useEffect(() => {
     if (application) {
+        
       setFormData({
         company: application.company,
         role: application.role,
@@ -40,19 +42,21 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
         status: application.status,
         salaryRange: application.salaryRange || '',
       });
-      // Load saved suggestions if they exist
-      if ((application as any).resumeSuggestions) {
-        setSuggestions((application as any).resumeSuggestions);
-      }
-      if ((application as any).jobDescription) {
-        setJobDescription((application as any).jobDescription);
-      }
+      
+      // Load existing suggestions or empty array
+      const existingSuggestions = (application as any).resumeSuggestions || [];
+      const existingJobDescription = (application as any).jobDescription || '';
+      const existingSkills = (application as any).skills || [];
+      
+      setSuggestions(existingSuggestions);
+      setJobDescription(existingJobDescription);
+      setSkills(existingSkills);
     }
   }, [application]);
 
   const handleGenerateSuggestions = async () => {
     if (!jobDescription) {
-      setError('No job description available. Please add one in notes or link.');
+      setError('Please paste a job description to generate suggestions');
       return;
     }
     
@@ -62,7 +66,6 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
     try {
       const result = await generateResumeSuggestions(jobDescription);
       setSuggestions(result.suggestions || []);
-      setShowAISuggestions(true);
     } catch (err) {
       setError('Failed to generate suggestions. Please try again.');
     } finally {
@@ -82,9 +85,15 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
     setError('');
 
     try {
-      // Save suggestions along with form data
       const updatedData = {
-        ...formData,
+        company: formData.company,
+        role: formData.role,
+        jobDescriptionLink: formData.jobDescriptionLink,
+        notes: formData.notes,
+        dateApplied: formData.dateApplied,
+        status: formData.status,
+        salaryRange: formData.salaryRange,
+        skills: skills,
         resumeSuggestions: suggestions,
         jobDescription: jobDescription,
       };
@@ -102,33 +111,30 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-gray-700">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
+      <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col">
+        <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Edit Application</h2>
-            <button 
-              onClick={onClose} 
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-xl"
-            >
-              ✕
-            </button>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-xl">✕</button>
           </div>
-          
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-5">
           {error && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <form id="edit-form" onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Company *</label>
                 <input
                   type="text"
                   value={formData.company}
                   onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white text-sm"
                   required
                 />
               </div>
@@ -138,7 +144,7 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
                   type="text"
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white text-sm"
                   required
                 />
               </div>
@@ -148,7 +154,7 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
                   type="date"
                   value={formData.dateApplied}
                   onChange={(e) => setFormData({ ...formData, dateApplied: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white text-sm"
                 />
               </div>
               <div>
@@ -156,7 +162,7 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white text-sm"
                 >
                   <option value="applied">Applied</option>
                   <option value="phone-screen">Phone Screen</option>
@@ -171,7 +177,7 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
                   type="text"
                   value={formData.salaryRange}
                   onChange={(e) => setFormData({ ...formData, salaryRange: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white text-sm"
                   placeholder="e.g., $120k - $150k"
                 />
               </div>
@@ -181,19 +187,16 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
                   type="url"
                   value={formData.jobDescriptionLink}
                   onChange={(e) => setFormData({ ...formData, jobDescriptionLink: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white"
-                  placeholder="https://..."
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white text-sm"
                 />
               </div>
               <div className="col-span-2">
-                <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">
-                  Job Description Text (for AI suggestions)
-                </label>
+                <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Job Description Text</label>
                 <textarea
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white h-24 resize-none"
-                  placeholder="Paste job description here to get AI resume suggestions..."
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white h-24 text-sm resize-none"
+                  placeholder="Paste job description here to generate AI suggestions"
                 />
               </div>
               <div className="col-span-2">
@@ -201,123 +204,104 @@ export default function EditApplicationModal({ isOpen, onClose, onSuccess, appli
                 <textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white h-20 resize-none"
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white h-16 text-sm resize-none"
                   placeholder="Interview notes, follow-up tasks, etc..."
                 />
               </div>
             </div>
 
-            {/* AI Suggestions Collapsible Section */}
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+            {skills.length > 0 && (
+              <div>
+                <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">Extracted Skills</label>
+                <div className="flex flex-wrap gap-2">
+                  {skills.map((skill, idx) => (
+                    <span key={idx} className="px-2 py-1 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* AI Suggestions Section */}
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
               <button
                 type="button"
                 onClick={() => setShowAISuggestions(!showAISuggestions)}
-                className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="w-full flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-indigo-500" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    AI Resume Suggestions
-                  </span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">AI Resume Suggestions</span>
                   {suggestions.length > 0 && (
                     <span className="text-xs bg-indigo-100 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">
-                      {suggestions.length} saved
+                      {suggestions.length}
                     </span>
                   )}
                 </div>
-                {showAISuggestions ? (
-                  <ChevronUp className="w-4 h-4 text-gray-500" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-gray-500" />
-                )}
+                {showAISuggestions ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
               </button>
 
               {showAISuggestions && (
                 <div className="mt-3 space-y-3">
-                  {suggestions.length === 0 && !loadingSuggestions && (
-                    <div className="text-center p-4 bg-gray-50 dark:bg-gray-800/30 rounded-xl">
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-                        No AI suggestions yet. Generate suggestions based on the job description.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={handleGenerateSuggestions}
-                        className="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg text-xs font-medium hover:shadow-lg transition-all flex items-center gap-1 mx-auto"
-                      >
-                        <Sparkles className="w-3 h-3" />
-                        Generate Suggestions
-                      </button>
-                    </div>
-                  )}
+                  {/* Generate button - always visible */}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleGenerateSuggestions}
+                      disabled={loadingSuggestions}
+                      className="flex-1 px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg text-xs font-medium hover:shadow-lg transition-all flex items-center justify-center gap-1"
+                    >
+                      {loadingSuggestions ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                      {loadingSuggestions ? 'Generating...' : (suggestions.length > 0 ? 'Regenerate Suggestions' : 'Generate Suggestions')}
+                    </button>
+                  </div>
 
-                  {loadingSuggestions && (
-                    <div className="text-center p-4 bg-gray-50 dark:bg-gray-800/30 rounded-xl">
-                      <Loader2 className="w-5 h-5 text-indigo-500 animate-spin mx-auto mb-2" />
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Generating AI suggestions...</p>
-                    </div>
-                  )}
-
+                  {/* Display suggestions if any */}
                   {suggestions.length > 0 && (
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
                       {suggestions.map((suggestion, idx) => (
-                        <div
-                          key={idx}
-                          className="bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/20 dark:to-purple-950/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-3 group"
-                        >
-                          <div className="flex justify-between items-start gap-3">
-                            <p className="text-gray-700 dark:text-gray-300 text-sm flex-1 leading-relaxed">
-                              {suggestion}
-                            </p>
+                        <div key={idx} className="bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/20 dark:to-purple-950/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-2 group">
+                          <div className="flex justify-between items-start gap-2">
+                            <p className="text-gray-700 dark:text-gray-300 text-xs flex-1 leading-relaxed">{suggestion}</p>
                             <button
                               type="button"
                               onClick={() => handleCopySuggestion(suggestion, idx)}
-                              className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-indigo-600 dark:text-indigo-400 text-xs font-medium hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all flex-shrink-0"
+                              className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-indigo-600 text-xs hover:bg-indigo-50 transition-all flex-shrink-0"
                             >
-                              {copySuccess === `suggestion-${idx}` ? (
-                                <>
-                                  <CheckCircle className="w-3 h-3" />
-                                  Copied!
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3 h-3" />
-                                  Copy
-                                </>
-                              )}
+                              {copySuccess === `suggestion-${idx}` ? <CheckCircle className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                              {copySuccess === `suggestion-${idx}` ? 'Copied!' : 'Copy'}
                             </button>
                           </div>
                         </div>
                       ))}
-                      <button
-                        type="button"
-                        onClick={handleGenerateSuggestions}
-                        className="w-full text-center text-xs text-indigo-500 hover:text-indigo-600 py-2"
-                      >
-                        Regenerate Suggestions
-                      </button>
                     </div>
                   )}
                 </div>
               )}
             </div>
-            
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
           </form>
+        </div>
+
+        <div className="p-5 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all font-medium text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="edit-form"
+              disabled={saving}
+              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all disabled:opacity-70 flex items-center gap-2 text-sm"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

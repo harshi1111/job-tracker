@@ -7,7 +7,6 @@ const express_1 = __importDefault(require("express"));
 const ai_controller_1 = require("../controllers/ai.controller");
 const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
-// Make sure authenticate is applied
 router.use(auth_1.authenticate);
 router.post('/parse-job', ai_controller_1.parseJobDescription);
 router.post('/resume-suggestions', ai_controller_1.generateResumeSuggestions);

@@ -124,7 +124,7 @@ export default function ApplicationChart({ applications }: ApplicationChartProps
   };
 
   return (
-    <div className="bg-white dark:bg-[#1a1a2e] rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm h-full">
+    <div className="bg-white dark:bg-[#1a1a2e] rounded-xl border border-indigo-200 dark:border-gray-700 shadow-md h-full">
       <div className="p-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
           <div className="flex items-center gap-2">
