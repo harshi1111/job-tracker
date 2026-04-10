@@ -291,6 +291,35 @@ VITE_API_URL=http://localhost:5001/api
   name: string
   createdAt: Date
 }
+```
+### Application Model
+```typescript
+{
+  userId: ObjectId;           
+  company: string;
+  role: string;
+  jobDescriptionLink?: string;
+  notes?: string;
+  dateApplied: Date;
+  status: 'applied' | 'phone-screen' | 'interview' | 'offer' | 'rejected';
+  salaryRange?: string;
+  skills: string[];
+  resumeSuggestions: string[];
+  jobDescription?: string;
+  followUpDate?: Date;
+  reminderNotes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Relationships
+
+User → Applications: One-to-Many
+
+Each application belongs to one user
+
+Deleting a user cascades delete their applications
 
 ## ✦ The Team Behind the Grid
 
