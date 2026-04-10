@@ -33,7 +33,7 @@ PATHGRID transforms chaotic job searching into a **streamlined**, **intelligent 
 ## ✦ Features Deep Dive
 
 <details>
-<summary><b><img src="icons/ai.svg" width="20" style="vertical-align: middle;"> AI Job Description Parser</b> — <i>Click to expand</i></summary>
+<summary><b><img src="icons/ai.svg" width="20"> AI Job Description Parser</b> — <i>Click to expand</i></summary>
 <br>
 
 - Extracts: **Company Name, Job Role, Required Skills, Nice-to-have Skills, Seniority Level, Location**
@@ -45,7 +45,7 @@ PATHGRID transforms chaotic job searching into a **streamlined**, **intelligent 
 </details>
 
 <details>
-<summary><b><img src="icons/resume.svg" width="20" style="vertical-align: middle;"> AI Resume Suggestions</b> — <i>Click to expand</i></summary>
+<summary><b><img src="icons/resume.svg" width="20"> AI Resume Suggestions</b> — <i>Click to expand</i></summary>
 <br>
 
 - Generates **3-5 tailored bullet points** specific to the job description
@@ -57,12 +57,12 @@ PATHGRID transforms chaotic job searching into a **streamlined**, **intelligent 
 </details>
 
 <details>
-<summary><b><img src="icons/kanban.svg" width="20" style="vertical-align: middle;"> Kanban Board</b> — <i>Click to expand</i></summary>
+<summary><b><img src="icons/kanban.svg" width="20"> Kanban Board</b> — <i>Click to expand</i></summary>
 <br>
 
 - **5 stages**: Applied → Phone Screen → Interview → Offer → Rejected
 - **Drag & drop** cards between columns with smooth animations
-- **Celebration effect**: Confetti when moving an application to "Offer"
+- **Celebration effect**: Confetti 🎉 when moving an application to "Offer"
 - Each card shows: company, role, date applied, status
 - **Overdue highlighting**: Red border for past-due follow-ups
 - Click any card to **view, edit, or delete**
@@ -70,7 +70,7 @@ PATHGRID transforms chaotic job searching into a **streamlined**, **intelligent 
 </details>
 
 <details>
-<summary><b><img src="icons/reminder.svg" width="20" style="vertical-align: middle;"> Smart Reminders</b> — <i>Click to expand</i></summary>
+<summary><b><img src="icons/reminder.svg" width="20"> Smart Reminders</b> — <i>Click to expand</i></summary>
 <br>
 
 - Set **follow-up dates** for each application
@@ -83,7 +83,7 @@ PATHGRID transforms chaotic job searching into a **streamlined**, **intelligent 
 </details>
 
 <details>
-<summary><b><img src="icons/analytics.svg" width="20" style="vertical-align: middle;"> Analytics Dashboard</b> — <i>Click to expand</i></summary>
+<summary><b><img src="icons/analytics.svg" width="20"> Analytics Dashboard</b> — <i>Click to expand</i></summary>
 <br>
 
 - **Stats cards** with rolling numbers
@@ -104,11 +104,34 @@ PATHGRID transforms chaotic job searching into a **streamlined**, **intelligent 
 </details>
 
 <details>
-<summary><b><img src="icons/export.svg" width="20" style="vertical-align: middle;"> Export & Backup</b> — <i>Click to expand</i></summary>
+<summary><b><img src="icons/export.svg" width="20"> Export & Backup</b> — <i>Click to expand</i></summary>
 <br>
 
 - Export all applications to **CSV format**
 - Includes all fields: company, role, status, date applied, notes, salary range, follow-up date, reminder notes
+
+</details>
+
+<details>
+<summary><b>🎓 Guided Tour</b> — <i>Click to expand</i></summary>
+<br>
+
+- **Interactive walkthrough** for first-time users
+- Highlights key features: Stats, Timeline, Reminders, Kanban, Search, Dark Mode
+- **Auto-starts** for new users
+- Manual trigger via **Help button (?)**
+- Saves completion status in localStorage
+
+</details>
+
+<details>
+<summary><b>✨ Animated Backgrounds</b> — <i>Click to expand</i></summary>
+<br>
+
+- **ShapeGrid**: Animated moving grid with hover effects on Landing/Login/Register pages
+- **Iridescence**: Subtle iridescent effect in light mode
+- **Hyperspeed**: Dynamic speed lines in dark mode
+- **Responsive**: Adapts to all screen sizes
 
 </details>
 
