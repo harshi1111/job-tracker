@@ -56,6 +56,37 @@ flowchart LR
     AI --> Gemini[Google Gemini]
     AI --> OpenRouter[OpenRouter]
 ```
+## ✦ Tech Stack Details
+
+### Frontend
+| Library | Version | Purpose |
+|---------|---------|---------|
+| React | 19.2.4 | UI framework |
+| TypeScript | 5.3.3 | Type safety |
+| Tailwind CSS | 3.4.19 | Styling |
+| Framer Motion | 12.38.0 | Animations |
+| @hello-pangea/dnd | 18.0.1 | Drag & drop |
+| Chart.js | 4.5.1 | Analytics charts |
+| Lucide React | 1.7.0 | Icons |
+| Axios | 1.14.0 | API calls |
+
+### Backend
+| Library | Version | Purpose |
+|---------|---------|---------|
+| Node.js | 22.x | Runtime |
+| Express | 4.18.2 | Web framework |
+| TypeScript | 5.3.3 | Type safety |
+| MongoDB | 9.4.1 | Database driver |
+| Mongoose | 9.4.1 | ODM |
+| JWT | 9.0.3 | Authentication |
+| bcryptjs | 3.0.3 | Password hashing |
+
+### AI Providers
+| Provider | Model | Purpose |
+|----------|-------|---------|
+| Groq | Llama 3.3 70B | Primary AI (fastest) |
+| Google Gemini | gemini-flash-latest | Fallback AI |
+| OpenRouter | GPT-OSS-20B | Secondary fallback |
 
 ## ✦ Quick Start
 
@@ -113,6 +144,20 @@ VITE_API_URL=http://localhost:5001/api
 | Backend | Render | Node.js server, free tier |
 | Database | MongoDB Atlas | Cloud database, 512MB free |
 
+## ✦ API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Create new user |
+| POST | `/api/auth/login` | Login user |
+| GET | `/api/applications` | Get all applications |
+| POST | `/api/applications` | Create application |
+| PUT | `/api/applications/:id` | Update application |
+| DELETE | `/api/applications/:id` | Delete application |
+| POST | `/api/ai/parse-job` | Parse job description |
+| POST | `/api/ai/resume-suggestions` | Generate suggestions |
+| GET | `/api/stats` | Get global stats |
+
 ## ✦ Decisions & Trade-offs
 
 | Decision | Why |
@@ -125,6 +170,17 @@ VITE_API_URL=http://localhost:5001/api
 | **Tailwind CSS** | Rapid UI development with built-in dark mode support. |
 | **Framer Motion** | Smooth animations without heavy CSS keyframes. |
 | **TypeScript** | Type safety across full stack, reduces runtime errors. |
+
+## ✦ Database Schema
+
+### User Model
+```typescript
+{
+  email: string (unique)
+  password: string (hashed)
+  name: string
+  createdAt: Date
+}
 
 ## ✦ The Team Behind the Grid
 
