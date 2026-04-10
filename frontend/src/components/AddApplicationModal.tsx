@@ -275,7 +275,7 @@ export default function AddApplicationModal({ isOpen, onClose, onSuccess }: AddA
               <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <Zap className="w-4 h-4 text-indigo-500" />
-                  <p className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Your AI sidekick is here!</p>
+                  <p className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Your AI assistant is here!</p>
                 </div>
                 <p className="text-xs text-indigo-600 dark:text-indigo-400">
                   Drop any job description below, and watch me work my magic. You just sit back! 
