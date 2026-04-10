@@ -582,7 +582,11 @@ export default function Dashboard() {
                                   className="relative"
                                 >
                                   <motion.div
-                                    className={`bg-white/95 dark:bg-[#1a1a2e] border rounded-xl p-3 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 group ${
+                                    className={`${
+    theme === 'dark' 
+      ? 'bg-[#1a1a2e] backdrop-blur-sm' 
+      : 'bg-white'
+  } border rounded-xl p-3 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 group ${
                                       snapshot.isDragging ? 'shadow-lg rotate-1' : ''
                                     } ${
                                       isOverdue(app) 
@@ -590,7 +594,7 @@ export default function Dashboard() {
                                         : 'border-gray-200 dark:border-gray-700'
                                     }`}
                                     layout
-                                    transition={{ duration: 0.15 }}
+                                    transition={{ duration: 0.1 }}
                                     style={{ willChange: 'transform' }}
                                   >
                                     {isOverdue(app) && (
