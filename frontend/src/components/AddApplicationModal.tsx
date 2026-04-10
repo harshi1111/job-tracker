@@ -327,19 +327,19 @@ export default function AddApplicationModal({ isOpen, onClose, onSuccess }: AddA
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Company *</label>
-                  <input type="text" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-sm" required />
+                  <input type="text" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white" required />
                 </div>
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Role *</label>
-                  <input type="text" value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-sm" required />
+                  <input type="text" value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white" required />
                 </div>
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Date Applied</label>
-                  <input type="date" value={formData.dateApplied} onChange={(e) => setFormData({ ...formData, dateApplied: e.target.value })} className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-sm" />
+                  <input type="date" value={formData.dateApplied} onChange={(e) => setFormData({ ...formData, dateApplied: e.target.value })} className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white" />
                 </div>
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Status</label>
-                  <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
+                  <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white">
                     <option value="applied">Applied</option>
                     <option value="phone-screen">Phone Screen</option>
                     <option value="interview">Interview</option>
@@ -349,11 +349,11 @@ export default function AddApplicationModal({ isOpen, onClose, onSuccess }: AddA
                 </div>
                 <div className="col-span-2">
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Salary Range</label>
-                  <input type="text" value={formData.salaryRange} onChange={(e) => setFormData({ ...formData, salaryRange: e.target.value })} className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-sm" placeholder="e.g., $120k - $150k" />
+                  <input type="text" value={formData.salaryRange} onChange={(e) => setFormData({ ...formData, salaryRange: e.target.value })} className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white" placeholder="e.g., $120k - $150k" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Follow-up Date</label>
-                  <input type="date" value={formData.followUpDate} onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })} className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-sm" />
+                  <input type="date" value={formData.followUpDate} onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })} className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Reminder Notes</label>
@@ -361,7 +361,7 @@ export default function AddApplicationModal({ isOpen, onClose, onSuccess }: AddA
                 </div>
                 <div className="col-span-2">
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Job Description Link</label>
-                  <input type="url" value={formData.jobDescriptionLink} onChange={(e) => setFormData({ ...formData, jobDescriptionLink: e.target.value })} className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-lg text-sm" />
+                  <input type="url" value={formData.jobDescriptionLink} onChange={(e) => setFormData({ ...formData, jobDescriptionLink: e.target.value })} className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Notes</label>
