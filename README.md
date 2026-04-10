@@ -161,9 +161,6 @@ flowchart LR
 ```
 ## ✦ Tech Stack
 
-<table>
-  <tr>
-    <td valign="top" width="33%">
 
 ### Frontend
 
@@ -178,8 +175,6 @@ flowchart LR
 | Lucide React | 1.7.0 | Icons |
 | Axios | 1.14.0 | API calls |
 
-    </td>
-    <td valign="top" width="33%">
 
 ### Backend
 
@@ -193,9 +188,6 @@ flowchart LR
 | JWT | 9.0.3 | Auth |
 | bcryptjs | 3.0.3 | Hashing |
 
-    </td>
-    <td valign="top" width="33%">
-
 ### AI Providers
 
 | Provider | Model | Purpose |
@@ -206,9 +198,6 @@ flowchart LR
 
 **Multi-Key Rotation:** 3 keys = 300K tokens/day
 
-    </td>
-  </tr>
-</table>
 ## ✦ Quick Start
 
 ```bash
