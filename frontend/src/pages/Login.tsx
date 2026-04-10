@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { login } from '../services/auth.service';
-import { useTheme } from '../context/ThemeContext';
 import Hyperspeed from '../components/Hyperspeed';
 import ShapeGrid from '../components/ShapeGrid';
 
@@ -29,7 +28,6 @@ const BlurText = ({ text, className = "" }: { text: string; className?: string }
 
 export default function Login() {
   const navigate = useNavigate();
-  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -62,40 +60,34 @@ export default function Login() {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 overflow-x-hidden relative ${
-      theme === 'dark' 
-        ? 'bg-[#0a0a0f]' 
-        : 'bg-gray-50'
-    }`}>
+    <div className="min-h-screen bg-[#0a0a0f] overflow-x-hidden relative">
       
-      {/* ShapeGrid Background - receives mouse events */}
+      {/* ShapeGrid Background */}
       <div className="fixed inset-0 z-0" style={{ pointerEvents: 'auto' }}>
         <ShapeGrid 
           speed={0.5}
           squareSize={40}
           direction="diagonal"
-          borderColor={theme === 'dark' ? '#271E37' : '#ccccdd'}
-          hoverFillColor={theme === 'dark' ? '#6366f1' : '#818cf8'}
+          borderColor="#271E37"
+          hoverFillColor="#6366f1"
           shape="square"
           hoverTrailAmount={0}
         />
       </div>
 
       {/* Hyperspeed Background */}
-      {theme === 'dark' && (
-        <div className="fixed inset-0 z-0 opacity-10 pointer-events-none">
-          <Hyperspeed />
-        </div>
-      )}
+      <div className="fixed inset-0 z-0 opacity-10 pointer-events-none">
+        <Hyperspeed />
+      </div>
 
       {/* Animated cursor glow */}
       <motion.div
         className="fixed w-48 h-48 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none z-0"
-        animate={{ x: mousePosition.x - 200, y: mousePosition.y - 200 }}
+        animate={{ x: mousePosition.x - 100, y: mousePosition.y - 100 }}
         transition={{ type: "spring", damping: 20, stiffness: 100 }}
       />
 
-      {/* Content wrapper - ALLOWS grid to receive hover events */}
+      {/* Content wrapper */}
       <div className="relative z-10" style={{ pointerEvents: 'none' }}>
         
         <motion.div 
@@ -104,7 +96,7 @@ export default function Login() {
         >
           <div className="max-w-6xl w-full mx-auto flex flex-col lg:flex-row items-center gap-12">
             
-            {/* Left Side - Branding (text allows grid hover) */}
+            {/* Left Side - Branding */}
             <div className="flex-1 text-center lg:text-left" style={{ pointerEvents: 'none' }}>
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}
@@ -112,7 +104,7 @@ export default function Login() {
                 transition={{ duration: 0.8, type: "spring", stiffness: 50 }}
                 className="flex items-center justify-center lg:justify-start mb-8"
               >
-                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#010101] border border-indigo-500 shadow-xl shadow-cyan-500/20">
+                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#010101] border border-indigo-500 shadow-xl shadow-indigo-500/20">
                   <img 
                     src="/logoalone.png" 
                     alt="PATHGRID Logo" 
@@ -129,23 +121,19 @@ export default function Login() {
               <div className="mb-4">
                 <BlurText 
                   text="Welcome Back to Your Career Grid"
-                  className={`text-4xl md:text-5xl font-bold ${
-                    theme === 'dark' ? 'text-white' : 'text-gray-900'
-                  }`}
+                  className="text-4xl md:text-5xl font-bold text-white"
                 />
               </div>
 
               <div className="mb-8">
                 <BlurText 
                   text="Sign in to continue tracking your applications, get AI-powered resume suggestions, and land your dream job faster."
-                  className={`text-lg ${
-                    theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                  }`}
+                  className="text-lg text-gray-400"
                 />
               </div>
 
               <motion.div 
-                className="flex flex-wrap justify-center lg:justify-start gap-8 pt-8 border-t border-gray-200 dark:border-gray-800"
+                className="flex flex-wrap justify-center lg:justify-start gap-8 pt-8 border-t border-gray-800"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
@@ -162,9 +150,7 @@ export default function Login() {
                     transition={{ delay: 0.6 + idx * 0.1, type: "spring", stiffness: 200 }}
                     className="text-center lg:text-left group cursor-pointer"
                   >
-                    <div className={`text-2xl font-bold transition-colors duration-300 group-hover:text-indigo-500 ${
-                      theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'
-                    }`}>
+                    <div className="text-2xl font-bold transition-colors duration-300 group-hover:text-indigo-500 text-cyan-400">
                       {stat.value}
                     </div>
                     <div className="text-sm text-gray-500">{stat.label}</div>
@@ -173,62 +159,42 @@ export default function Login() {
               </motion.div>
             </div>
 
-            {/* Right Side - Login Card (keeps pointer-events auto so form works) */}
+            {/* Right Side - Login Card */}
             <div className="flex-1 w-full max-w-md mx-auto lg:mx-0" style={{ pointerEvents: 'auto' }}>
-              <div className={`relative rounded-2xl p-8 ${
-                theme === 'dark' 
-                  ? 'bg-[#1a1a2e]/50 backdrop-blur-sm border border-gray-700' 
-                  : 'bg-white/50 backdrop-blur-sm border border-gray-200'
-              } shadow-xl`}>
+              <div className="relative rounded-2xl p-8 bg-[#1a1a2e]/50 backdrop-blur-sm border border-gray-700 shadow-xl">
                 
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-cyan-500 to-blue-500 rounded-2xl opacity-20 blur-xl" />
 
                 <div className="relative">
-                  <h2 className={`text-2xl font-bold mb-2 ${
-                    theme === 'dark' ? 'text-white' : 'text-gray-900'
-                  }`}>Sign In</h2>
-                  <p className={`text-sm mb-6 ${
-                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                  }`}>Enter your credentials to access your account</p>
+                  <h2 className="text-2xl font-bold mb-2 text-white">Sign In</h2>
+                  <p className="text-sm mb-6 text-gray-400">Enter your credentials to access your account</p>
 
                   {error && (
-                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm text-center">
+                    <div className="mb-4 p-3 bg-red-950/20 border border-red-800 rounded-xl text-red-400 text-sm text-center">
                       {error}
                     </div>
                   )}
 
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <label className={`block text-sm font-medium mb-2 ${
-                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                      }`}>Email Address</label>
+                      <label className="block text-sm font-medium mb-2 text-gray-300">Email Address</label>
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className={`w-full px-4 py-3 rounded-xl border transition-all duration-200 outline-none ${
-                          theme === 'dark'
-                            ? 'border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20'
-                            : 'border-gray-200 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
-                        }`}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-200 outline-none"
                         placeholder="you@example.com"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className={`block text-sm font-medium mb-2 ${
-                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                      }`}>Password</label>
+                      <label className="block text-sm font-medium mb-2 text-gray-300">Password</label>
                       <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className={`w-full px-4 py-3 rounded-xl border transition-all duration-200 outline-none ${
-                          theme === 'dark'
-                            ? 'border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20'
-                            : 'border-gray-200 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
-                        }`}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-200 outline-none"
                         placeholder="••••••••"
                         required
                       />
@@ -245,11 +211,9 @@ export default function Login() {
                   </form>
 
                   <div className="mt-6 text-center">
-                    <p className={`text-sm ${
-                      theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                    }`}>
+                    <p className="text-sm text-gray-400">
                       Don't have an account?{' '}
-                      <a href="/register" className="text-cyan-600 dark:text-cyan-400 hover:underline font-semibold">
+                      <a href="/register" className="text-cyan-400 hover:underline font-semibold">
                         Create Account
                       </a>
                     </p>

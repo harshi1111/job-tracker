@@ -555,7 +555,11 @@ export default function Dashboard() {
                 const cards = getFilteredApplicationsByStatus(column.id);
                 return (
                   <div key={column.id} className="flex flex-col">
-                    <div className={`bg-gray-100/50 dark:bg-[#1a1a2e]/50 rounded-xl px-3 py-2 mb-3 flex items-center justify-between border-l-4 ${getColumnBorderColor(column.id)}`}>
+                    <div className={`${
+  theme === 'dark' 
+    ? 'bg-[#1a1a2e]/50' 
+    : 'bg-white border border-gray-300 shadow-sm'
+} rounded-xl px-3 py-2 mb-3 flex items-center justify-between border-l-4 ${getColumnBorderColor(column.id)}`}>
                       <button
                         className={`text-sm font-semibold transition-colors ${column.color} ${column.hoverColor}`}
                       >
