@@ -12,7 +12,24 @@
   [![Demo Video](https://img.shields.io/badge/Demo_Video-46E3B7?style=for-the-badge&logo=youtube&logoColor=black)](https://youtu.be/R8QJgCV0_i0)
   
 </div>
+<br>
 
+<div align="center">
+  
+  [About](#-the-grid) • 
+  [Features](#-features-deep-dive) • 
+  [Architecture](#-the-architecture) • 
+  [Tech Stack](#-tech-stack) • 
+  [Quick Start](#-quick-start) • 
+  [Deployment](#-deployment) • 
+  [API](#-api-endpoints) • 
+  [Database](#-database-schema) • 
+  [Decisions](#-decisions--trade-offs) • 
+  
+  
+</div>
+
+<br>
 <br>
 
 > **An AI-powered job application tracker that doesn't just store your applications — it helps you win them.**
