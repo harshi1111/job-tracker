@@ -675,7 +675,7 @@ export default function Dashboard() {
       </main>
 
       <KanbanTour showTour={showTour} setShowTour={setShowTour} />
-      <AddApplicationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={fetchApplications} theme={theme} />
+      <AddApplicationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={fetchApplications} />
       <EditApplicationModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSuccess={fetchApplications} application={selectedApplication} />
       
       <ConfirmDeleteModal
