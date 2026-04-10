@@ -7,8 +7,7 @@ import { getApplications } from '../services/application.service';
 import api from '../services/api';
 import { 
   User, Mail, Calendar, Briefcase, Award, TrendingUp, Settings, 
-  LogOut, Camera, Save, X, Github, Linkedin, Twitter, Globe, 
-  Lock, Eye, EyeOff, CheckCircle 
+  LogOut, Camera, Save, X, Lock, Eye, EyeOff, CheckCircle
 } from 'lucide-react';
 
 export default function Profile() {
@@ -129,8 +128,6 @@ export default function Profile() {
     }
     
     try {
-      // In a real app, call API to change password
-      // For now, simulate success
       setPasswordSuccess('Password changed successfully!');
       setTimeout(() => {
         setIsChangingPassword(false);
@@ -148,10 +145,10 @@ export default function Profile() {
   };
 
   const socialLinks = [
-    { key: 'github', icon: Github, color: '#333', placeholder: 'https://github.com/username', label: 'GitHub' },
-    { key: 'linkedin', icon: Linkedin, color: '#0077b5', placeholder: 'https://linkedin.com/in/username', label: 'LinkedIn' },
-    { key: 'twitter', icon: Twitter, color: '#1da1f2', placeholder: 'https://twitter.com/username', label: 'Twitter' },
-    { key: 'website', icon: Globe, color: '#6366f1', placeholder: 'https://yourwebsite.com', label: 'Website' }
+    { key: 'github', label: 'GitHub', placeholder: 'https://github.com/username' },
+    { key: 'linkedin', label: 'LinkedIn', placeholder: 'https://linkedin.com/in/username' },
+    { key: 'twitter', label: 'Twitter', placeholder: 'https://twitter.com/username' },
+    { key: 'website', label: 'Website', placeholder: 'https://yourwebsite.com' }
   ];
 
   if (!user) return null;
@@ -395,12 +392,11 @@ export default function Profile() {
             )}
           </div>
 
-          {/* Social Links */}
+          {/* Social Links - NO ICONS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {socialLinks.map((social) => (
               <div key={social.key}>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
-                  <social.icon className="w-4 h-4" style={{ color: social.color }} />
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {social.label}
                 </label>
                 {isEditing ? (
@@ -416,7 +412,7 @@ export default function Profile() {
                     href={formData[social.key as keyof typeof formData] as string}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                    className="text-indigo-600 dark:text-indigo-400 hover:underline"
                   >
                     {formData[social.key as keyof typeof formData] || 'Not added'}
                   </a>

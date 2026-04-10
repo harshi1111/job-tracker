@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import api from '../services/api';
+// @ts-ignore
 import ShapeGrid from '../components/ShapeGrid';
 
 export default function Landing() {

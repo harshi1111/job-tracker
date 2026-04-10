@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { login } from '../services/auth.service';
 import Hyperspeed from '../components/Hyperspeed';
+// @ts-ignore
 import ShapeGrid from '../components/ShapeGrid';
 
 const BlurText = ({ text, className = "" }: { text: string; className?: string }) => {
