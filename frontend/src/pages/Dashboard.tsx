@@ -11,7 +11,7 @@ import ApplicationChart from '../components/ApplicationChart';
 import QuotesPanel from '../components/QuotesPanel';
 import StatsCards from '../components/StatsCards';
 import ReminderPanel from '../components/ReminderPanel';
-import { Download, Sun, Moon, Sparkles, Plus, Search, LogOut, ChevronDown, Calendar, Filter, X, HelpCircle, Edit3, Bell } from 'lucide-react';
+import { Download, Sun, Moon, Sparkles, Plus, Search, LogOut, ChevronDown, Calendar, Filter, X, HelpCircle, Edit3, Bell, User } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import KanbanTour from '../components/KanbanTour';
 import Iridescence from '../components/Iridescence';
@@ -388,6 +388,13 @@ export default function Dashboard() {
                         <p className="text-xs font-semibold text-gray-900 dark:text-white">{user?.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{user?.email}</p>
                       </div>
+                      <button
+                        onClick={() => navigate('/profile')}
+  className="w-full flex items-center gap-2 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+>                     <User className="w-4 h-4" />
+                          Profile
+
+                      </button>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-2 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"

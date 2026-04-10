@@ -3,6 +3,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
 import { getCurrentUser } from './services/auth.service';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -38,6 +39,13 @@ export default function App() {
         <Route path="/dashboard" element={
           <PrivateRoute>
             <Dashboard />
+          </PrivateRoute>
+        } />
+        
+        {/* Profile - only if logged in */}
+        <Route path="/profile" element={
+          <PrivateRoute>
+            <Profile />
           </PrivateRoute>
         } />
       </Routes>

@@ -36,3 +36,4 @@ yarn-error.log*
 "frontend/.env" 
 "node_modules/" 
 "*/node_modules/" 
+"node_modules/" 
