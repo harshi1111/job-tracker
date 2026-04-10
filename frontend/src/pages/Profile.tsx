@@ -4,10 +4,9 @@ import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { getCurrentUser, logout } from '../services/auth.service';
 import { getApplications } from '../services/application.service';
-import api from '../services/api';
 import { 
-  User, Mail, Calendar, Briefcase, Award, TrendingUp, Settings, 
-  LogOut, Camera, Save, X, Lock, Eye, EyeOff, CheckCircle
+  User, Mail, Calendar, Briefcase, Award, TrendingUp, 
+  LogOut, Camera, Save, X, Plus, Trash2
 } from 'lucide-react';
 
 export default function Profile() {
@@ -16,27 +15,10 @@ export default function Profile() {
   const user = getCurrentUser();
   const [applications, setApplications] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [profilePic, setProfilePic] = useState<string | null>(null);
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
-  const [passwordSuccess, setPasswordSuccess] = useState('');
-  const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    bio: '',
-    location: '',
-    github: '',
-    linkedin: '',
-    twitter: '',
-    website: ''
-  });
+  const [socialLinks, setSocialLinks] = useState<{ id: string; platform: string; url: string }[]>([]);
+  const [newPlatform, setNewPlatform] = useState('');
+  const [newUrl, setNewUrl] = useState('');
   const [stats, setStats] = useState({
     total: 0,
     applied: 0,
@@ -45,6 +27,11 @@ export default function Profile() {
     acceptanceRate: 0
   });
 
+  const platforms = [
+    'GitHub', 'LinkedIn', 'Twitter', 'Instagram', 'YouTube', 
+    'Portfolio', 'Medium', 'Dev.to', 'Hashnode', 'Discord', 'Reddit'
+  ];
+
   useEffect(() => {
     if (!user) {
       navigate('/login');
@@ -52,7 +39,7 @@ export default function Profile() {
     }
     fetchApplications();
     loadProfilePic();
-    loadProfileData();
+    loadSocialLinks();
   }, []);
 
   const fetchApplications = async () => {
@@ -75,19 +62,14 @@ export default function Profile() {
     if (saved) setProfilePic(saved);
   };
 
-  const loadProfileData = () => {
-    const savedBio = localStorage.getItem('user_bio');
-    const savedLocation = localStorage.getItem('user_location');
-    const savedGithub = localStorage.getItem('user_github');
-    const savedLinkedin = localStorage.getItem('user_linkedin');
-    const savedTwitter = localStorage.getItem('user_twitter');
-    const savedWebsite = localStorage.getItem('user_website');
-    if (savedBio) setFormData(prev => ({ ...prev, bio: savedBio }));
-    if (savedLocation) setFormData(prev => ({ ...prev, location: savedLocation }));
-    if (savedGithub) setFormData(prev => ({ ...prev, github: savedGithub }));
-    if (savedLinkedin) setFormData(prev => ({ ...prev, linkedin: savedLinkedin }));
-    if (savedTwitter) setFormData(prev => ({ ...prev, twitter: savedTwitter }));
-    if (savedWebsite) setFormData(prev => ({ ...prev, website: savedWebsite }));
+  const loadSocialLinks = () => {
+    const saved = localStorage.getItem('social_links');
+    if (saved) {
+      setSocialLinks(JSON.parse(saved));
+    } else {
+      // Default empty array
+      setSocialLinks([]);
+    }
   };
 
   const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,40 +85,24 @@ export default function Profile() {
     }
   };
 
-  const handleSave = () => {
-    localStorage.setItem('user_bio', formData.bio);
-    localStorage.setItem('user_location', formData.location);
-    localStorage.setItem('user_github', formData.github);
-    localStorage.setItem('user_linkedin', formData.linkedin);
-    localStorage.setItem('user_twitter', formData.twitter);
-    localStorage.setItem('user_website', formData.website);
+  const handleSaveLinks = () => {
+    localStorage.setItem('social_links', JSON.stringify(socialLinks));
     setIsEditing(false);
   };
 
-  const handleChangePassword = async () => {
-    setPasswordError('');
-    setPasswordSuccess('');
-    
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordError('New passwords do not match');
-      return;
+  const addSocialLink = () => {
+    if (newPlatform && newUrl) {
+      setSocialLinks([
+        ...socialLinks,
+        { id: Date.now().toString(), platform: newPlatform, url: newUrl }
+      ]);
+      setNewPlatform('');
+      setNewUrl('');
     }
-    
-    if (passwordData.newPassword.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
-      return;
-    }
-    
-    try {
-      setPasswordSuccess('Password changed successfully!');
-      setTimeout(() => {
-        setIsChangingPassword(false);
-        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-        setPasswordSuccess('');
-      }, 2000);
-    } catch (err) {
-      setPasswordError('Failed to change password. Please try again.');
-    }
+  };
+
+  const removeSocialLink = (id: string) => {
+    setSocialLinks(socialLinks.filter(link => link.id !== id));
   };
 
   const handleLogout = () => {
@@ -144,20 +110,13 @@ export default function Profile() {
     navigate('/login');
   };
 
-  const socialLinks = [
-    { key: 'github', label: 'GitHub', placeholder: 'https://github.com/username' },
-    { key: 'linkedin', label: 'LinkedIn', placeholder: 'https://linkedin.com/in/username' },
-    { key: 'twitter', label: 'Twitter', placeholder: 'https://twitter.com/username' },
-    { key: 'website', label: 'Website', placeholder: 'https://yourwebsite.com' }
-  ];
-
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0f] dark:to-[#12121a] transition-colors duration-300">
       
       <header className="sticky top-0 z-40 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0f]/80">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <button onClick={() => navigate('/dashboard')} className="text-gray-600 dark:text-gray-400 hover:text-indigo-500 transition-colors">
             ← Back to Dashboard
           </button>
@@ -166,7 +125,7 @@ export default function Profile() {
               onClick={() => setIsEditing(!isEditing)}
               className="px-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-700 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all"
             >
-              {isEditing ? 'Cancel' : 'Edit Profile'}
+              {isEditing ? 'Cancel' : 'Edit Links'}
             </button>
             <button
               onClick={handleLogout}
@@ -178,7 +137,7 @@ export default function Profile() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         
         {/* Profile Header */}
         <motion.div
@@ -188,38 +147,26 @@ export default function Profile() {
         >
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative">
-              <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden">
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden">
                 {profilePic ? (
                   <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-4xl font-bold text-white">
+                  <span className="text-3xl font-bold text-white">
                     {user.name?.charAt(0)?.toUpperCase() || 'U'}
                   </span>
                 )}
               </div>
-              {isEditing && (
-                <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-600 transition-colors">
-                  <Camera className="w-4 h-4 text-white" />
-                  <input type="file" accept="image/*" onChange={handleProfilePicUpload} className="hidden" />
-                </label>
-              )}
+              <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-600 transition-colors">
+                <Camera className="w-4 h-4 text-white" />
+                <input type="file" accept="image/*" onChange={handleProfilePicUpload} className="hidden" />
+              </label>
             </div>
 
             <div className="flex-1 text-center md:text-left">
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="text-2xl font-bold bg-transparent border-b border-indigo-400 dark:border-indigo-500 outline-none text-gray-900 dark:text-white mb-1"
-                />
-              ) : (
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{user.name}</h1>
-              )}
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{user.name}</h1>
               <p className="text-gray-500 dark:text-gray-400 flex items-center justify-center md:justify-start gap-1 mt-1">
                 <Mail className="w-4 h-4" /> {user.email}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Member since {new Date().toLocaleDateString()}</p>
             </div>
 
             <div className="text-center">
@@ -236,31 +183,31 @@ export default function Profile() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6"
         >
-          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-center">
-            <Briefcase className="w-6 h-6 text-indigo-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
+            <Briefcase className="w-5 h-5 text-indigo-500 mx-auto mb-1" />
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">Applications</p>
           </div>
-          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-center">
-            <TrendingUp className="w-6 h-6 text-amber-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.interview}</p>
+          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
+            <TrendingUp className="w-5 h-5 text-amber-500 mx-auto mb-1" />
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.interview}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">Interviews</p>
           </div>
-          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-center">
-            <Award className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.offer}</p>
+          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
+            <Award className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.offer}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">Offers</p>
           </div>
-          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-center">
-            <Calendar className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.applied}</p>
+          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
+            <Calendar className="w-5 h-5 text-purple-500 mx-auto mb-1" />
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.applied}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
           </div>
         </motion.div>
 
-        {/* Bio & Social */}
+        {/* Social Links Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -268,158 +215,79 @@ export default function Profile() {
           className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">About Me</h2>
-            <div className="flex gap-2">
-              {isEditing && (
-                <button onClick={handleSave} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all">
-                  <Save className="w-4 h-4" /> Save Changes
-                </button>
-              )}
-              <button
-                onClick={() => setIsChangingPassword(!isChangingPassword)}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-              >
-                <Lock className="w-4 h-4" /> Change Password
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Social Links</h2>
+            {isEditing && (
+              <button onClick={handleSaveLinks} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all">
+                <Save className="w-4 h-4" /> Save Links
               </button>
-            </div>
+            )}
           </div>
 
-          {/* Change Password Modal */}
-          {isChangingPassword && (
+          {/* Add New Link - Only in Edit Mode */}
+          {isEditing && (
             <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-              <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-3">Change Password</h3>
-              {passwordError && <p className="text-sm text-rose-500 mb-3">{passwordError}</p>}
-              {passwordSuccess && <p className="text-sm text-emerald-500 mb-3 flex items-center gap-1"><CheckCircle className="w-4 h-4" /> {passwordSuccess}</p>}
-              
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Password</label>
-                  <div className="relative">
-                    <input
-                      type={showCurrentPassword ? 'text' : 'password'}
-                      value={passwordData.currentPassword}
-                      onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                      className="w-full px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                    >
-                      {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
-                  <div className="relative">
-                    <input
-                      type={showNewPassword ? 'text' : 'password'}
-                      value={passwordData.newPassword}
-                      onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                      className="w-full px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                    >
-                      {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
-                  <input
-                    type="password"
-                    value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                    className="w-full px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  />
-                </div>
-                <div className="flex gap-2 pt-2">
-                  <button
-                    onClick={handleChangePassword}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
-                  >
-                    Update Password
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsChangingPassword(false);
-                      setPasswordError('');
-                      setPasswordSuccess('');
-                      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-                    }}
-                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Add New Link</h3>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <select
+                  value={newPlatform}
+                  onChange={(e) => setNewPlatform(e.target.value)}
+                  className="flex-1 px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  <option value="">Select Platform</option>
+                  {platforms.map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+                <input
+                  type="url"
+                  value={newUrl}
+                  onChange={(e) => setNewUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1 px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                />
+                <button
+                  onClick={addSocialLink}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" /> Add
+                </button>
               </div>
             </div>
           )}
 
-          {/* Bio */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bio</label>
-            {isEditing ? (
-              <textarea
-                value={formData.bio}
-                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                rows={3}
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                placeholder="I'm a passionate developer..."
-              />
-            ) : (
-              <p className="text-gray-600 dark:text-gray-400">{formData.bio || 'No bio added yet.'}</p>
-            )}
-          </div>
-
-          {/* Location */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                placeholder="Chennai, India"
-              />
-            ) : (
-              <p className="text-gray-600 dark:text-gray-400">{formData.location || 'Not specified'}</p>
-            )}
-          </div>
-
-          {/* Social Links - NO ICONS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {socialLinks.map((social) => (
-              <div key={social.key}>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  {social.label}
-                </label>
-                {isEditing ? (
-                  <input
-                    type="url"
-                    value={formData[social.key as keyof typeof formData] as string}
-                    onChange={(e) => setFormData({ ...formData, [social.key]: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    placeholder={social.placeholder}
-                  />
-                ) : (
-                  <a
-                    href={formData[social.key as keyof typeof formData] as string}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-600 dark:text-indigo-400 hover:underline"
-                  >
-                    {formData[social.key as keyof typeof formData] || 'Not added'}
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
+          {/* Social Links List */}
+          {socialLinks.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              No social links added yet.
+              {!isEditing && <p className="text-sm mt-1">Click "Edit Links" to add your profiles.</p>}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {socialLinks.map((link) => (
+                <div key={link.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700">
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-900 dark:text-white">{link.platform}</span>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-3 text-sm text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                    >
+                      {link.url}
+                    </a>
+                  </div>
+                  {isEditing && (
+                    <button
+                      onClick={() => removeSocialLink(link.id)}
+                      className="p-1 text-rose-500 hover:text-rose-600 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </motion.div>
       </main>
     </div>
