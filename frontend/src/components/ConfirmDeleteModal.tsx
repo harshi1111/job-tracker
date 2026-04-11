@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
+import { useEffect } from 'react';
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -16,36 +17,56 @@ export default function ConfirmDeleteModal({
   companyName, 
   roleName 
 }: ConfirmDeleteModalProps) {
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop - full screen */}
+          {/* Backdrop - covers entire screen */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 9999,
+            }}
           />
           
-          {/* Modal - Perfectly Centered */}
+          {/* Modal - perfectly centered */}
           <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: -20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             style={{
               position: 'fixed',
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              zIndex: 101,
+              zIndex: 10000,
               width: '380px',
-              maxWidth: '90vw'
+              maxWidth: '90vw',
             }}
           >
             <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
