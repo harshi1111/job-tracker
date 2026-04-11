@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { login } from '../services/auth.service';
+import api from '../services/api';
 import Hyperspeed from '../components/Hyperspeed';
 // @ts-ignore
 import ShapeGrid from '../components/ShapeGrid';
+import { X, Shield, Key, ArrowLeft } from 'lucide-react';
 
 const BlurText = ({ text, className = "" }: { text: string; className?: string }) => {
   const words = text.split(' ');
@@ -35,6 +37,18 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
+  // Forgot Password States
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [resetStep, setResetStep] = useState<'email' | 'question' | 'newPassword'>('email');
+  const [resetEmail, setResetEmail] = useState('');
+  const [securityQuestion, setSecurityQuestion] = useState('');
+  const [securityAnswer, setSecurityAnswer] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [resetError, setResetError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
 
@@ -58,6 +72,104 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleInitiateReset = async () => {
+    if (!resetEmail) {
+      setResetError('Please enter your email');
+      return;
+    }
+    
+    setResetLoading(true);
+    setResetError('');
+    
+    try {
+      const response = await api.post('/auth/initiate-reset', { email: resetEmail });
+      setSecurityQuestion(response.data.securityQuestion);
+      setResetStep('question');
+    } catch (err: any) {
+      setResetError(err.response?.data?.error || 'Failed to initiate password reset');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleVerifyAnswer = async () => {
+    if (!securityAnswer) {
+      setResetError('Please answer the security question');
+      return;
+    }
+    
+    setResetLoading(true);
+    setResetError('');
+    
+    try {
+      await api.post('/auth/verify-answer', { 
+        email: resetEmail, 
+        securityAnswer,
+        newPassword: '' // We'll send password in next step
+      });
+      setResetStep('newPassword');
+    } catch (err: any) {
+      setResetError(err.response?.data?.error || 'Incorrect answer');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleSetNewPassword = async () => {
+    if (!newPassword || !confirmNewPassword) {
+      setResetError('Please fill both password fields');
+      return;
+    }
+    
+    if (newPassword !== confirmNewPassword) {
+      setResetError('Passwords do not match');
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      setResetError('Password must be at least 6 characters');
+      return;
+    }
+    
+    setResetLoading(true);
+    setResetError('');
+    
+    try {
+      await api.post('/auth/verify-answer', { 
+        email: resetEmail, 
+        securityAnswer,
+        newPassword
+      });
+      setResetSuccess('Password reset successfully! You can now login.');
+      setTimeout(() => {
+        setShowForgotModal(false);
+        setResetStep('email');
+        setResetEmail('');
+        setSecurityQuestion('');
+        setSecurityAnswer('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+        setResetSuccess('');
+      }, 2000);
+    } catch (err: any) {
+      setResetError(err.response?.data?.error || 'Failed to reset password');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const closeModal = () => {
+    setShowForgotModal(false);
+    setResetStep('email');
+    setResetEmail('');
+    setSecurityQuestion('');
+    setSecurityAnswer('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+    setResetError('');
+    setResetSuccess('');
   };
 
   return (
@@ -201,6 +313,16 @@ export default function Login() {
                       />
                     </div>
 
+                    <div className="text-right">
+                      <button
+                        type="button"
+                        onClick={() => setShowForgotModal(true)}
+                        className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+                      >
+                        Forgot Password?
+                      </button>
+                    </div>
+
                     <button
                       type="submit"
                       disabled={loading}
@@ -225,6 +347,161 @@ export default function Login() {
           </div>
         </motion.div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {showForgotModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center">
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+              onClick={closeModal} 
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-md mx-4"
+            >
+              <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Key className="w-5 h-5 text-cyan-500" />
+                    Reset Password
+                  </h2>
+                  <button 
+                    onClick={closeModal} 
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {resetSuccess && (
+                  <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-600 dark:text-emerald-400 text-sm">
+                    {resetSuccess}
+                  </div>
+                )}
+
+                {resetError && (
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
+                    {resetError}
+                  </div>
+                )}
+
+                {resetStep === 'email' && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Enter your email address and we'll verify your identity using your security question.
+                    </p>
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Email Address</label>
+                      <input
+                        type="email"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0a0a0f] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        placeholder="you@example.com"
+                      />
+                    </div>
+                    <button
+                      onClick={handleInitiateReset}
+                      disabled={resetLoading}
+                      className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                    >
+                      {resetLoading ? 'Verifying...' : 'Continue'}
+                    </button>
+                  </div>
+                )}
+
+                {resetStep === 'question' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Shield className="w-4 h-4 text-cyan-500" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Security Verification</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Security Question</label>
+                      <p className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white">
+                        {securityQuestion}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Your Answer</label>
+                      <input
+                        type="text"
+                        value={securityAnswer}
+                        onChange={(e) => setSecurityAnswer(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0a0a0f] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        placeholder="Your answer"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">Not case sensitive</p>
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setResetStep('email')}
+                        className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-1"
+                      >
+                        <ArrowLeft className="w-4 h-4" /> Back
+                      </button>
+                      <button
+                        onClick={handleVerifyAnswer}
+                        disabled={resetLoading}
+                        className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                      >
+                        {resetLoading ? 'Verifying...' : 'Verify'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {resetStep === 'newPassword' && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Set a new password for your account.
+                    </p>
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">New Password</label>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0a0a0f] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        placeholder="Enter new password"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Confirm New Password</label>
+                      <input
+                        type="password"
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0a0a0f] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setResetStep('question')}
+                        className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-1"
+                      >
+                        <ArrowLeft className="w-4 h-4" /> Back
+                      </button>
+                      <button
+                        onClick={handleSetNewPassword}
+                        disabled={resetLoading}
+                        className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                      >
+                        {resetLoading ? 'Resetting...' : 'Reset Password'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
