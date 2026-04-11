@@ -11,10 +11,14 @@ const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const application_routes_1 = __importDefault(require("./routes/application.routes"));
 const ai_routes_1 = __importDefault(require("./routes/ai.routes"));
 const stats_routes_1 = __importDefault(require("./routes/stats.routes"));
+const user_routes_1 = __importDefault(require("./routes/user.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: ['https://job-tracker-six-gamma.vercel.app', 'http://localhost:5173'],
+    credentials: true,
+}));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ limit: '10mb', extended: true }));
 // Routes
@@ -22,6 +26,7 @@ app.use('/api/auth', auth_routes_1.default);
 app.use('/api/applications', application_routes_1.default);
 app.use('/api/ai', ai_routes_1.default);
 app.use('/api/stats', stats_routes_1.default);
+app.use('/api/user', user_routes_1.default);
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
