@@ -172,6 +172,19 @@ PATHGRID transforms chaotic job searching into a **streamlined**, **intelligent 
 
 </details>
 
+<details>
+<summary><b>👤 Profile & Account</b> — <i>Click to expand</i></summary>
+<br>
+
+- **Avatar Upload** : Upload custom profile picture (supports JPG, PNG)
+- **Social Links** : Add GitHub, LinkedIn, Twitter, and custom platforms
+- **Application Stats** : View total applications, interviews, offers, and acceptance rate
+- **Change Password** : Securely update your password
+- **Delete Account** : Permanent account deletion with "DELETE" confirmation
+- **Data Persistence** : All profile data saved locally and synced with backend
+
+</details>
+
 ## ✦ The Architecture
 
 ```mermaid
@@ -307,6 +320,8 @@ VITE_API_URL=http://localhost:5001/api
 | POST | `/api/ai/parse-job` | Parse job description |
 | POST | `/api/ai/resume-suggestions` | Generate suggestions |
 | GET | `/api/stats` | Get global stats |
+| PUT | `/api/user/password` | Update user password |
+| DELETE | `/api/user/account` | Delete user account and all data |
 
 ## ✦ Decisions & Trade-offs
 
