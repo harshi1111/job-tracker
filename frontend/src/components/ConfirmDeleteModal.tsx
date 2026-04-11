@@ -53,7 +53,7 @@ export default function ConfirmDeleteModal({
             }}
           />
           
-          {/* Modal - perfectly centered */}
+          {/* Modal - adjusted position: up a bit, left a bit */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -61,9 +61,9 @@ export default function ConfirmDeleteModal({
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             style={{
               position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
+              top: '45%',
+              left: '45%',
+              transform: 'translate(-45%, -45%)',
               zIndex: 10000,
               width: '380px',
               maxWidth: '90vw',
