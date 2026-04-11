@@ -50,6 +50,14 @@ const UserSchema = new mongoose_1.Schema({
         type: String,
         required: true
     },
+    securityQuestion: {
+        type: String,
+        default: null
+    },
+    securityAnswer: {
+        type: String,
+        default: null
+    },
     createdAt: {
         type: Date,
         default: Date.now
