@@ -176,9 +176,9 @@ export const verifySecurityAnswer = async (req: Request, res: Response) => {
 
     // If newPassword is provided, update it
     if (newPassword) {
-      if (newPassword.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters' });
-      }
+      //if (newPassword.length < 6) {
+      //  return res.status(400).json({ error: 'Password must be at least 6 characters' });
+      //}
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       user.password = hashedPassword;
       await user.save();
