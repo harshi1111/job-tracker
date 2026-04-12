@@ -244,8 +244,8 @@ export default function AddApplicationModal({ isOpen, onClose, onSuccess }: AddA
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl w-full max-w-lg max-h-[90vh] sm:max-h-[85vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col mx-2 sm:mx-0">
         <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
@@ -324,7 +324,7 @@ export default function AddApplicationModal({ isOpen, onClose, onSuccess }: AddA
                 <p className="text-xs text-emerald-600 dark:text-emerald-400">AI successfully parsed this job description</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Company *</label>
                   <input type="text" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="w-full px-3 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white" required />
