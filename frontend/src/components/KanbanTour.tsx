@@ -73,6 +73,24 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
       target: '.p-2.rounded-xl',
       position: 'bottom',
     },
+    {
+      title: 'Your Profile',
+      content: 'Click your avatar to access Profile settings. Here you can change password, set security question, manage social links, and store your resumes.',
+      target: '.w-8.h-8.rounded-lg',
+      position: 'bottom',
+    },
+    {
+      title: 'Resume Storage',
+      content: 'Upload up to 6 resumes for different roles. Download, edit titles, or delete them anytime. All resumes are safely stored in the cloud.',
+      target: '.bg-white\\/90.dark\\:bg-\\[\\#1a1a2e\\]\\/90.rounded-2xl.border.border-gray-200.dark\\:border-gray-700.p-6:last-child',
+      position: 'top',
+    },
+    {
+      title: 'Sign Out',
+      content: 'Click here to securely sign out of your account. Your data is always saved.',
+      target: '.p-2.rounded-xl.bg-gray-100',
+      position: 'bottom',
+    },
   ];
 
   // Auto-show tour for new users
@@ -93,10 +111,7 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
       
       // For timeline, use a more specific approach
       if (step === 3) {
-        // Find the div that contains the ApplicationChart component
-        const chartContainer = document.querySelector('.h-full.border.rounded-xl.overflow-hidden');
         const allContainers = document.querySelectorAll('.h-full.border.rounded-xl.overflow-hidden');
-        // The second one (index 1) is the chart, first one is quotes
         const targetElement = allContainers[1] as HTMLElement;
         
         if (targetElement) {
@@ -109,6 +124,57 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
           const rect = targetElement.getBoundingClientRect();
           setTargetRect(rect);
           targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      }
+      
+      // For Profile avatar (step 10)
+      if (step === 10) {
+        const avatarElement = document.querySelector('.w-8.h-8.rounded-lg') as HTMLElement;
+        if (avatarElement) {
+          document.querySelectorAll('.tour-highlight').forEach(el => {
+            el.classList.remove('tour-highlight');
+          });
+          avatarElement.classList.add('tour-highlight');
+          avatarElement.style.position = 'relative';
+          avatarElement.style.zIndex = '1001';
+          const rect = avatarElement.getBoundingClientRect();
+          setTargetRect(rect);
+          avatarElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      }
+      
+      // For Resume Storage (step 11)
+      if (step === 11) {
+        const resumeSection = document.querySelector('.bg-white\\/90.dark\\:bg-\\[\\#1a1a2e\\]\\/90.rounded-2xl.border.border-gray-200.dark\\:border-gray-700.p-6:last-child') as HTMLElement;
+        if (resumeSection) {
+          document.querySelectorAll('.tour-highlight').forEach(el => {
+            el.classList.remove('tour-highlight');
+          });
+          resumeSection.classList.add('tour-highlight');
+          resumeSection.style.position = 'relative';
+          resumeSection.style.zIndex = '1001';
+          const rect = resumeSection.getBoundingClientRect();
+          setTargetRect(rect);
+          resumeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      }
+      
+      // For Sign Out button (step 12)
+      if (step === 12) {
+        const signOutButton = document.querySelector('.p-2.rounded-xl.bg-gray-100') as HTMLElement;
+        if (signOutButton) {
+          document.querySelectorAll('.tour-highlight').forEach(el => {
+            el.classList.remove('tour-highlight');
+          });
+          signOutButton.classList.add('tour-highlight');
+          signOutButton.style.position = 'relative';
+          signOutButton.style.zIndex = '1001';
+          const rect = signOutButton.getBoundingClientRect();
+          setTargetRect(rect);
+          signOutButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
           return;
         }
       }
@@ -150,6 +216,12 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
         if (step === 3) {
           const allContainers = document.querySelectorAll('.h-full.border.rounded-xl.overflow-hidden');
           targetElement = allContainers[1] as HTMLElement;
+        } else if (step === 10) {
+          targetElement = document.querySelector('.w-8.h-8.rounded-lg') as HTMLElement;
+        } else if (step === 11) {
+          targetElement = document.querySelector('.bg-white\\/90.dark\\:bg-\\[\\#1a1a2e\\]\\/90.rounded-2xl.border.border-gray-200.dark\\:border-gray-700.p-6:last-child') as HTMLElement;
+        } else if (step === 12) {
+          targetElement = document.querySelector('.p-2.rounded-xl.bg-gray-100') as HTMLElement;
         } else if (steps[step].target) {
           targetElement = document.querySelector(steps[step].target!);
         }
