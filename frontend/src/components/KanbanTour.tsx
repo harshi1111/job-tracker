@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface KanbanTourProps {
@@ -7,243 +8,206 @@ interface KanbanTourProps {
 }
 
 export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(0);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const tourRef = useRef<HTMLDivElement>(null);
+  const [waitingForNavigation, setWaitingForNavigation] = useState(false);
 
   const steps = [
+    // Dashboard steps (0-10)
     {
       title: 'Welcome to PATHGRID',
       content: 'Your AI-powered job tracking companion. Let us walk you through all the features.',
       target: null,
       position: 'center',
+      page: 'dashboard',
     },
     {
       title: 'Daily Inspiration',
       content: 'Stay motivated with curated quotes about careers and perseverance.',
       target: '.flex-shrink-0.border',
       position: 'bottom',
+      page: 'dashboard',
     },
     {
       title: 'Your Progress Dashboard',
       content: 'See your application counts at a glance. The numbers roll up smoothly as you add more jobs.',
       target: '.grid-cols-5',
       position: 'bottom',
+      page: 'dashboard',
     },
     {
       title: 'Application Timeline',
       content: 'Visualize your job search journey. Filter by week, month, or see your entire history.',
       target: '.h-full.border.rounded-xl.overflow-hidden:has(canvas)',
       position: 'bottom',
+      page: 'dashboard',
     },
     {
       title: 'Smart Reminders',
       content: 'Never miss a follow-up! Set reminder dates for each application. Overdue items will be highlighted in red.',
       target: '.mb-6 > div:first-child',
       position: 'bottom',
+      page: 'dashboard',
     },
     {
       title: 'Drag & Drop Kanban',
       content: 'Move cards between columns as you progress. Get a celebration when you land an offer!',
       target: '.grid-cols-1.md\\:grid-cols-5',
       position: 'top',
+      page: 'dashboard',
     },
     {
       title: 'AI-Powered Application',
       content: 'Click here to add a job. Paste any description and our AI will extract company, role, and skills instantly.',
       target: '.bg-gradient-to-r.from-indigo-600.to-purple-600',
       position: 'bottom',
+      page: 'dashboard',
     },
     {
       title: 'Search & Filter',
       content: 'Quickly find applications by company or role. Filter by date range to focus on recent activity.',
       target: '.relative.border',
       position: 'bottom',
+      page: 'dashboard',
     },
     {
       title: 'Export Your Data',
       content: 'Download all your applications as a CSV file. Perfect for sharing or backup.',
       target: '.bg-gray-100',
       position: 'bottom',
+      page: 'dashboard',
     },
     {
       title: 'Dark Mode',
       content: 'Switch between light and dark themes for comfortable viewing anytime.',
       target: '.p-2.rounded-xl.bg-gray-100:has(.w-5.h-5)',
       position: 'bottom',
+      page: 'dashboard',
     },
     {
       title: 'Help & Support',
-      content: 'Need help? Click the question mark button on Dashboard or use the floating chat button at the bottom right of any page for FAQs and feedback.',
+      content: 'Need help? Click the question mark button or use the floating chat button at the bottom right for FAQs and feedback.',
       target: '.fixed.bottom-6.right-6',
       position: 'top',
+      page: 'dashboard',
     },
+    // Profile steps (11-16) - will navigate to Profile
     {
       title: 'Your Profile',
-      content: 'Click your avatar to access Profile settings. This is where you manage your account.',
+      content: 'Click your avatar to go to Profile page where you can manage your account settings.',
       target: '.w-8.h-8.rounded-lg',
       position: 'bottom',
+      page: 'dashboard',
+      navigateTo: '/profile',
     },
     {
       title: 'Change Password',
-      content: 'In Profile, click "Change Password" to update your password anytime.',
-      target: '.text-sm.text-indigo-600:has(.w-3.h-3)',
+      content: 'On your Profile page, click "Change Password" to update your password anytime.',
+      target: '.text-sm.text-indigo-600',
       position: 'bottom',
+      page: 'profile',
     },
     {
       title: 'Security Question',
       content: 'Set a security question to recover your password if you forget it. This is optional but recommended.',
-      target: '.text-sm.text-emerald-600:has(.w-3.h-3)',
+      target: '.text-sm.text-emerald-600',
       position: 'bottom',
+      page: 'profile',
     },
     {
       title: 'Social Links',
       content: 'Add your GitHub, LinkedIn, Twitter, or custom social links to showcase your professional presence.',
       target: '.text-lg.font-semibold.text-gray-900',
       position: 'bottom',
+      page: 'profile',
     },
     {
       title: 'Resume Storage',
-      content: 'Upload up to 6 resumes for different roles. Download, edit titles, or delete them anytime. All resumes are safely stored in the cloud.',
+      content: 'Upload up to 6 resumes for different roles. Download, edit titles, or delete them anytime.',
       target: '.bg-white\\/90.dark\\:bg-\\[\\#1a1a2e\\]\\/90.rounded-2xl.border.border-gray-200.dark\\:border-gray-700.p-6:last-child',
       position: 'top',
+      page: 'profile',
     },
+    // Login step (16)
     {
       title: 'Forgot Password',
       content: 'On the Login page, click "Forgot Password?" and answer your security question to reset your password.',
       target: null,
       position: 'center',
+      page: 'login',
     },
+    // Sign Out step (17)
     {
       title: 'Sign Out',
-      content: 'Click the Logout button (red icon) to securely sign out of your account. Your data is always saved.',
+      content: 'Click the Logout button to securely sign out of your account. Your data is always saved.',
       target: '.p-2.rounded-xl.bg-gray-100',
       position: 'bottom',
+      page: 'dashboard',
     },
   ];
 
-  // Auto-show tour for new users
+  // Check if we're on the right page for current step
+  const getCurrentPage = () => {
+    if (location.pathname === '/dashboard') return 'dashboard';
+    if (location.pathname === '/profile') return 'profile';
+    if (location.pathname === '/login') return 'login';
+    return 'dashboard';
+  };
+
+  // Handle navigation when needed
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('kanbanTourCompleted');
-    if (!hasSeenTour && !showTour) {
-      const timer = setTimeout(() => {
-        setShowTour(true);
-      }, 1500);
-      return () => clearTimeout(timer);
+    if (waitingForNavigation) {
+      const currentPage = getCurrentPage();
+      const requiredPage = steps[step]?.page;
+      
+      if (currentPage === requiredPage) {
+        setWaitingForNavigation(false);
+        // Small delay to let page render
+        setTimeout(() => {
+          updateTargetAndPosition();
+        }, 500);
+      }
     }
-  }, [showTour, setShowTour]);
+  }, [location.pathname, waitingForNavigation, step]);
+
+  const updateTargetAndPosition = () => {
+    const currentStep = steps[step];
+    if (!currentStep.target) {
+      setTargetRect(null);
+      return;
+    }
+
+    const element = document.querySelector(currentStep.target) as HTMLElement;
+    if (element) {
+      document.querySelectorAll('.tour-highlight').forEach(el => {
+        el.classList.remove('tour-highlight');
+      });
+      element.classList.add('tour-highlight');
+      element.style.position = 'relative';
+      element.style.zIndex = '1001';
+      const rect = element.getBoundingClientRect();
+      setTargetRect(rect);
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
 
   // Update target rect when step changes
   useEffect(() => {
-    if (showTour && steps[step].target) {
-      let selector = steps[step].target!;
+    if (showTour && !waitingForNavigation) {
+      const currentPage = getCurrentPage();
+      const requiredPage = steps[step]?.page;
       
-      // For timeline, use a more specific approach
-      if (step === 3) {
-        const allContainers = document.querySelectorAll('.h-full.border.rounded-xl.overflow-hidden');
-        const targetElement = allContainers[1] as HTMLElement;
-        
-        if (targetElement) {
-          document.querySelectorAll('.tour-highlight').forEach(el => {
-            el.classList.remove('tour-highlight');
-          });
-          targetElement.classList.add('tour-highlight');
-          targetElement.style.position = 'relative';
-          targetElement.style.zIndex = '1001';
-          const rect = targetElement.getBoundingClientRect();
-          setTargetRect(rect);
-          targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
-      }
-      
-      // For Help/Feedback widget (step 10)
-      if (step === 10) {
-        const widgetButton = document.querySelector('.fixed.bottom-6.right-6') as HTMLElement;
-        if (widgetButton) {
-          document.querySelectorAll('.tour-highlight').forEach(el => {
-            el.classList.remove('tour-highlight');
-          });
-          widgetButton.classList.add('tour-highlight');
-          widgetButton.style.position = 'relative';
-          widgetButton.style.zIndex = '1001';
-          const rect = widgetButton.getBoundingClientRect();
-          setTargetRect(rect);
-          widgetButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
-      }
-      
-      // For Profile avatar (step 11)
-      if (step === 11) {
-        const avatarElement = document.querySelector('.w-8.h-8.rounded-lg') as HTMLElement;
-        if (avatarElement) {
-          document.querySelectorAll('.tour-highlight').forEach(el => {
-            el.classList.remove('tour-highlight');
-          });
-          avatarElement.classList.add('tour-highlight');
-          avatarElement.style.position = 'relative';
-          avatarElement.style.zIndex = '1001';
-          const rect = avatarElement.getBoundingClientRect();
-          setTargetRect(rect);
-          avatarElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
-      }
-      
-      // For Resume Storage (step 15)
-      if (step === 15) {
-        const resumeSection = document.querySelector('.bg-white\\/90.dark\\:bg-\\[\\#1a1a2e\\]\\/90.rounded-2xl.border.border-gray-200.dark\\:border-gray-700.p-6:last-child') as HTMLElement;
-        if (resumeSection) {
-          document.querySelectorAll('.tour-highlight').forEach(el => {
-            el.classList.remove('tour-highlight');
-          });
-          resumeSection.classList.add('tour-highlight');
-          resumeSection.style.position = 'relative';
-          resumeSection.style.zIndex = '1001';
-          const rect = resumeSection.getBoundingClientRect();
-          setTargetRect(rect);
-          resumeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
-      }
-      
-      // For Sign Out button (step 17)
-      if (step === 17) {
-        const signOutButton = document.querySelector('.p-2.rounded-xl.bg-gray-100') as HTMLElement;
-        if (signOutButton) {
-          document.querySelectorAll('.tour-highlight').forEach(el => {
-            el.classList.remove('tour-highlight');
-          });
-          signOutButton.classList.add('tour-highlight');
-          signOutButton.style.position = 'relative';
-          signOutButton.style.zIndex = '1001';
-          const rect = signOutButton.getBoundingClientRect();
-          setTargetRect(rect);
-          signOutButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
-      }
-      
-      const element = document.querySelector(selector) as HTMLElement;
-      
-      if (element) {
-        document.querySelectorAll('.tour-highlight').forEach(el => {
-          el.classList.remove('tour-highlight');
-        });
-        element.classList.add('tour-highlight');
-        element.style.position = 'relative';
-        element.style.zIndex = '1001';
-        const rect = element.getBoundingClientRect();
-        setTargetRect(rect);
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        console.warn(`Element not found for selector: ${selector}`);
+      if (requiredPage && currentPage !== requiredPage) {
+        // Don't show highlight, just wait
         setTargetRect(null);
+        return;
       }
-    } else {
-      setTargetRect(null);
+      
+      updateTargetAndPosition();
     }
     
     return () => {
@@ -253,26 +217,28 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
         (el as HTMLElement).style.zIndex = '';
       });
     };
-  }, [step, showTour, steps]);
+  }, [step, showTour, location.pathname]);
 
   useEffect(() => {
     const updatePosition = () => {
-      if (showTour && tourRef.current) {
-        let targetElement = null;
+      if (showTour && tourRef.current && !waitingForNavigation) {
+        const currentStep = steps[step];
+        const currentPage = getCurrentPage();
+        const requiredPage = currentStep?.page;
         
-        if (step === 3) {
-          const allContainers = document.querySelectorAll('.h-full.border.rounded-xl.overflow-hidden');
-          targetElement = allContainers[1] as HTMLElement;
-        } else if (step === 10) {
-          targetElement = document.querySelector('.fixed.bottom-6.right-6') as HTMLElement;
-        } else if (step === 11) {
-          targetElement = document.querySelector('.w-8.h-8.rounded-lg') as HTMLElement;
-        } else if (step === 15) {
-          targetElement = document.querySelector('.bg-white\\/90.dark\\:bg-\\[\\#1a1a2e\\]\\/90.rounded-2xl.border.border-gray-200.dark\\:border-gray-700.p-6:last-child') as HTMLElement;
-        } else if (step === 17) {
-          targetElement = document.querySelector('.p-2.rounded-xl.bg-gray-100') as HTMLElement;
-        } else if (steps[step].target) {
-          targetElement = document.querySelector(steps[step].target!);
+        if (requiredPage && currentPage !== requiredPage) {
+          // Center the tour card
+          const tourRect = tourRef.current.getBoundingClientRect();
+          setPosition({
+            top: window.innerHeight / 2 - tourRect.height / 2,
+            left: window.innerWidth / 2 - tourRect.width / 2,
+          });
+          return;
+        }
+        
+        let targetElement = null;
+        if (currentStep.target) {
+          targetElement = document.querySelector(currentStep.target) as HTMLElement;
         }
         
         const tourRect = tourRef.current.getBoundingClientRect();
@@ -282,10 +248,10 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
         if (targetElement) {
           const rect = targetElement.getBoundingClientRect();
           
-          if (steps[step].position === 'bottom') {
+          if (currentStep.position === 'bottom') {
             top = rect.bottom + 20;
             left = rect.left + rect.width / 2 - tourRect.width / 2;
-          } else if (steps[step].position === 'top') {
+          } else if (currentStep.position === 'top') {
             top = rect.top - tourRect.height - 20;
             left = rect.left + rect.width / 2 - tourRect.width / 2;
           }
@@ -309,9 +275,19 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
       window.removeEventListener('scroll', updatePosition);
       window.removeEventListener('resize', updatePosition);
     };
-  }, [step, showTour, steps]);
+  }, [step, showTour, waitingForNavigation, location.pathname]);
 
   const handleNext = () => {
+    const currentStep = steps[step];
+    
+    // Check if we need to navigate
+    if (currentStep.navigateTo) {
+      setWaitingForNavigation(true);
+      navigate(currentStep.navigateTo);
+      setStep(step + 1);
+      return;
+    }
+    
     if (step < steps.length - 1) {
       setStep(step + 1);
     } else {
@@ -335,11 +311,71 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
     localStorage.setItem('kanbanTourCompleted', 'true');
     setStep(0);
     setTargetRect(null);
+    setWaitingForNavigation(false);
   };
 
   if (!showTour) return null;
 
   const currentStep = steps[step];
+  const currentPage = getCurrentPage();
+  const requiredPage = currentStep?.page;
+  const isOnWrongPage = requiredPage && currentPage !== requiredPage && !waitingForNavigation;
+
+  // If on wrong page and not waiting for navigation, show waiting message
+  if (isOnWrongPage) {
+    return (
+      <div
+        ref={tourRef}
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 1002,
+        }}
+        className="w-80 bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-4 border-2 border-indigo-500"
+      >
+        <button
+          onClick={handleClose}
+          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+        >
+          <X className="w-4 h-4" />
+        </button>
+        
+        <div className="mb-3">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-2">
+            <span className="text-white text-sm font-bold">{step + 1}</span>
+          </div>
+          <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
+            {currentStep.title}
+          </h3>
+          <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+            {currentStep.content}
+          </p>
+          <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+            ⚡ Navigate to {requiredPage === 'profile' ? 'Profile' : requiredPage} page to continue...
+          </p>
+        </div>
+        
+        <div className="flex justify-between items-center">
+          <div className="flex gap-1">
+            {steps.map((_, idx) => (
+              <div key={idx} className={`h-1 rounded-full ${idx === step ? 'w-4 bg-indigo-500' : idx < step ? 'w-1 bg-indigo-300' : 'w-1 bg-gray-300'}`} />
+            ))}
+          </div>
+          
+          <div className="flex gap-2">
+            <button
+              onClick={handleClose}
+              className="px-3 py-1 text-xs font-medium bg-gray-500 text-white rounded-lg"
+            >
+              Skip Tour
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -414,9 +450,7 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
         
         <div className="mb-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-2">
-            <span className="text-white text-sm font-bold">
-              {step + 1}
-            </span>
+            <span className="text-white text-sm font-bold">{step + 1}</span>
           </div>
           <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
             {currentStep.title}
@@ -424,6 +458,11 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
           <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
             {currentStep.content}
           </p>
+          {currentStep.navigateTo && (
+            <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-2">
+              👆 Click Next to go to Profile page
+            </p>
+          )}
         </div>
         
         <div className="flex justify-between items-center">
