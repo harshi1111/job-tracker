@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { register } from '../services/auth.service';
 import Hyperspeed from '../components/Hyperspeed';
 // @ts-ignore
 import ShapeGrid from '../components/ShapeGrid';
-import { Shield, AlertCircle } from 'lucide-react';
+import { Shield, AlertCircle, ChevronDown, ChevronUp, Info } from 'lucide-react';
 
 const BlurText = ({ text, className = "" }: { text: string; className?: string }) => {
   const words = text.split(' ');
@@ -38,7 +38,8 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [showSecurityInfo, setShowSecurityInfo] = useState(false);
+  const [showSecurity, setShowSecurity] = useState(false);
+  const [showInfoPopup, setShowInfoPopup] = useState(false);
 
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
@@ -60,8 +61,8 @@ export default function Register() {
         name, 
         email, 
         password,
-        securityQuestion,
-        securityAnswer
+        securityQuestion: showSecurity ? securityQuestion : '',
+        securityAnswer: showSecurity ? securityAnswer : ''
       });
       navigate('/dashboard');
     } catch (err: any) {
@@ -171,9 +172,9 @@ export default function Register() {
               </motion.div>
             </div>
 
-            {/* Right Side - Register Card */}
+            {/* Right Side - Register Card - SCROLLABLE */}
             <div className="flex-1 w-full max-w-md mx-auto lg:mx-0" style={{ pointerEvents: 'auto' }}>
-              <div className="relative rounded-2xl p-8 bg-[#1a1a2e]/50 backdrop-blur-sm border border-gray-700 shadow-xl">
+              <div className="relative rounded-2xl p-8 bg-[#1a1a2e]/50 backdrop-blur-sm border border-gray-700 shadow-xl max-h-[85vh] overflow-y-auto">
                 
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-cyan-500 to-blue-500 rounded-2xl opacity-20 blur-xl" />
 
@@ -224,54 +225,87 @@ export default function Register() {
                       />
                     </div>
 
-                    {/* Security Question Section */}
+                    {/* Collapsible Security Question Section */}
                     <div className="border-t border-gray-700 pt-3 mt-2">
-                      <div className="flex items-center justify-between mb-3">
-                        <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
-                          <Shield className="w-4 h-4 text-emerald-500" />
-                          Security Question (For password recovery)
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => setShowSecurityInfo(!showSecurityInfo)}
-                          className="text-cyan-400 text-xs hover:underline"
-                        >
-                          Why?
-                        </button>
-                      </div>
-
-                      {showSecurityInfo && (
-                        <div className="mb-3 p-2 bg-emerald-950/20 border border-emerald-800 rounded-lg text-xs text-emerald-400">
-                          This helps you reset your password if you forget it. Your answer is encrypted and only you know it.
-                        </div>
-                      )}
-
-                      <select
-                        value={securityQuestion}
-                        onChange={(e) => setSecurityQuestion(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-200 outline-none mb-3"
-                        required
+                      <button
+                        type="button"
+                        onClick={() => setShowSecurity(!showSecurity)}
+                        className="w-full flex items-center justify-between text-sm text-gray-300 hover:text-cyan-400 transition-colors"
                       >
-                        <option value="">Select a security question</option>
-                        <option value="What was your first pet's name?">What was your first pet's name?</option>
-                        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
-                        <option value="What city were you born in?">What city were you born in?</option>
-                        <option value="What was your first school?">What was your first school?</option>
-                        <option value="What is your favorite book?">What is your favorite book?</option>
-                        <option value="What year did you graduate high school?">What year did you graduate high school?</option>
-                      </select>
+                        <div className="flex items-center gap-2">
+                          <Shield className="w-4 h-4 text-emerald-500" />
+                          <span>Security Question (Optional - for password recovery)</span>
+                        </div>
+                        {showSecurity ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </button>
 
-                      <input
-                        type="text"
-                        value={securityAnswer}
-                        onChange={(e) => setSecurityAnswer(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-200 outline-none"
-                        placeholder="Your answer (not case sensitive)"
-                        required
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        Tip: You can also set or update this later in your Profile settings.
-                      </p>
+                      <AnimatePresence>
+                        {showSecurity && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-3 space-y-3">
+                              {/* Info Popup Button */}
+                              <div className="relative">
+                                <button
+                                  type="button"
+                                  onMouseEnter={() => setShowInfoPopup(true)}
+                                  onMouseLeave={() => setShowInfoPopup(false)}
+                                  className="flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+                                >
+                                  <Info className="w-3 h-3" />
+                                  Why do I need this?
+                                </button>
+
+                                {/* Tooltip Popup */}
+                                <AnimatePresence>
+                                  {showInfoPopup && (
+                                    <motion.div
+                                      initial={{ opacity: 0, y: -5 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      exit={{ opacity: 0, y: -5 }}
+                                      className="absolute z-50 left-0 top-6 w-64 p-3 bg-gray-800 border border-gray-700 rounded-xl shadow-xl"
+                                    >
+                                      <p className="text-xs text-gray-300 leading-relaxed">
+                                        This helps you reset your password if you forget it. Your answer is encrypted and only you know it. You can also set this later in your Profile settings.
+                                      </p>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+
+                              <select
+                                value={securityQuestion}
+                                onChange={(e) => setSecurityQuestion(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-200 outline-none"
+                              >
+                                <option value="">Select a security question</option>
+                                <option value="What was your first pet's name?">What was your first pet's name?</option>
+                                <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                                <option value="What city were you born in?">What city were you born in?</option>
+                                <option value="What was your first school?">What was your first school?</option>
+                                <option value="What is your favorite book?">What is your favorite book?</option>
+                                <option value="What year did you graduate high school?">What year did you graduate high school?</option>
+                              </select>
+
+                              <input
+                                type="text"
+                                value={securityAnswer}
+                                onChange={(e) => setSecurityAnswer(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl border border-gray-700 bg-[#0a0a0f] text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-200 outline-none"
+                                placeholder="Your answer (not case sensitive)"
+                              />
+                              <p className="text-xs text-gray-500">
+                                You can also set or update this later in your Profile settings.
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     <button
