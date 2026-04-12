@@ -70,7 +70,7 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
     {
       title: 'Dark Mode',
       content: 'Switch between light and dark themes for comfortable viewing anytime.',
-      target: '.p-2.rounded-xl',
+      target: '.p-2.rounded-xl.bg-gray-100:has(.w-5.h-5)',
       position: 'bottom',
     },
     {
@@ -87,8 +87,8 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
     },
     {
       title: 'Sign Out',
-      content: 'Click here to securely sign out of your account. Your data is always saved.',
-      target: '.p-2.rounded-xl.bg-gray-100',
+      content: 'Click the Logout button (red icon) to securely sign out of your account. Your data is always saved.',
+      target: '.p-2.rounded-xl.bg-gray-100:has(.w-5.h-5.text-rose-600)',
       position: 'bottom',
     },
   ];
