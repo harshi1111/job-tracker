@@ -128,10 +128,7 @@ export default function Login() {
       return;
     }
     
-    if (newPassword.length < 6) {
-      setResetError('Password must be at least 6 characters');
-      return;
-    }
+    
     
     setResetLoading(true);
     setResetError('');
