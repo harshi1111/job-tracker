@@ -229,242 +229,244 @@ export default function Profile() {
   if (!user) return null;
 
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0f] dark:to-[#12121a] transition-colors duration-300">
-        
-        <header className="sticky top-0 z-40 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0f]/80">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-            <button onClick={() => navigate('/dashboard')} className="text-gray-600 dark:text-gray-400 hover:text-indigo-500 transition-colors">
-              ← Back to Dashboard
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0f] dark:to-[#12121a] transition-colors duration-300 relative">
+      {/* Animated Grid Background */}
+      <div className="profile-grid-bg"></div>
+      
+     
+      
+      <header className="sticky top-0 z-40 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0f]/80">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+          <button onClick={() => navigate('/dashboard')} className="text-gray-600 dark:text-gray-400 hover:text-indigo-500 transition-colors">
+            ← Back to Dashboard
+          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="px-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-700 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all"
+            >
+              {isEditing ? 'Cancel' : 'Edit Links'}
             </button>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="px-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-700 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all"
-              >
-                {isEditing ? 'Cancel' : 'Edit Links'}
-              </button>
-              <button
-                onClick={handleLogout}
-                className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 relative z-10">
+        
+        {/* Profile Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6 mb-6"
+        >
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden">
+                {profilePic ? (
+                  <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-3xl font-bold text-white">
+                    {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </span>
+                )}
+              </div>
+              <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-600 transition-colors">
+                <Camera className="w-4 h-4 text-white" />
+                <input type="file" accept="image/*" onChange={handleProfilePicUpload} className="hidden" />
+              </label>
+            </div>
+
+            <div className="flex-1 text-center md:text-left">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{user.name}</h1>
+              <p className="text-gray-500 dark:text-gray-400 flex items-center justify-center md:justify-start gap-1 mt-1">
+                <Mail className="w-4 h-4" /> {user.email}
+              </p>
+              <div className="flex items-center justify-center md:justify-start gap-3 mt-3">
+                <button
+                  onClick={() => setShowPasswordModal(true)}
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                >
+                  <Key className="w-3 h-3" /> Change Password
+                </button>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="text-sm text-rose-500 hover:text-rose-600 flex items-center gap-1"
+                >
+                  <Trash2 className="w-3 h-3" /> Delete Account
+                </button>
+                <button
+                  onClick={() => setShowSecurityModal(true)}
+                  className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                >
+                  <Shield className="w-3 h-3" /> Set Security Question
+                </button>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="px-4 py-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl">
+                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.acceptanceRate}%</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Offer Rate</p>
+              </div>
             </div>
           </div>
-        </header>
+        </motion.div>
 
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-          
-          {/* Profile Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6 mb-6"
-          >
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="relative">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden">
-                  {profilePic ? (
-                    <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-3xl font-bold text-white">
-                      {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                    </span>
-                  )}
-                </div>
-                <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-600 transition-colors">
-                  <Camera className="w-4 h-4 text-white" />
-                  <input type="file" accept="image/*" onChange={handleProfilePicUpload} className="hidden" />
-                </label>
-              </div>
+        {/* Stats Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6"
+        >
+          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
+            <Briefcase className="w-5 h-5 text-indigo-500 mx-auto mb-1" />
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Applications</p>
+          </div>
+          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
+            <TrendingUp className="w-5 h-5 text-amber-500 mx-auto mb-1" />
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.interview}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Interviews</p>
+          </div>
+          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
+            <Award className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.offer}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Offers</p>
+          </div>
+          <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
+            <Calendar className="w-5 h-5 text-purple-500 mx-auto mb-1" />
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.applied}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
+          </div>
+        </motion.div>
 
-              <div className="flex-1 text-center md:text-left">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{user.name}</h1>
-                <p className="text-gray-500 dark:text-gray-400 flex items-center justify-center md:justify-start gap-1 mt-1">
-                  <Mail className="w-4 h-4" /> {user.email}
-                </p>
-                <div className="flex items-center justify-center md:justify-start gap-3 mt-3">
-                  <button
-                    onClick={() => setShowPasswordModal(true)}
-                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
-                  >
-                    <Key className="w-3 h-3" /> Change Password
-                  </button>
-                  <button
-                    onClick={() => setShowDeleteModal(true)}
-                    className="text-sm text-rose-500 hover:text-rose-600 flex items-center gap-1"
-                  >
-                    <Trash2 className="w-3 h-3" /> Delete Account
-                  </button>
-                  <button
-                    onClick={() => setShowSecurityModal(true)}
-                    className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
-                  >
-                    <Shield className="w-3 h-3" /> Set Security Question
-                  </button>
-                </div>
-              </div>
-
-              <div className="text-center">
-                <div className="px-4 py-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl">
-                  <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.acceptanceRate}%</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Offer Rate</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Stats Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6"
-          >
-            <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
-              <Briefcase className="w-5 h-5 text-indigo-500 mx-auto mb-1" />
-              <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Applications</p>
-            </div>
-            <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
-              <TrendingUp className="w-5 h-5 text-amber-500 mx-auto mb-1" />
-              <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.interview}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Interviews</p>
-            </div>
-            <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
-              <Award className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
-              <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.offer}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Offers</p>
-            </div>
-            <div className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-center">
-              <Calendar className="w-5 h-5 text-purple-500 mx-auto mb-1" />
-              <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.applied}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
-            </div>
-          </motion.div>
-
-          {/* Social Links Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Social Links</h2>
-              {isEditing && (
-                <button onClick={handleSaveLinks} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all">
-                  <Save className="w-4 h-4" /> Save Links
-                </button>
-              )}
-            </div>
-
+        {/* Social Links Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Social Links</h2>
             {isEditing && (
-              <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Add New Link</h3>
-                
-                <div className="flex flex-col sm:flex-row gap-3 mb-3">
-                  <select
-                    value={newPlatform}
-                    onChange={(e) => setNewPlatform(e.target.value)}
+              <button onClick={handleSaveLinks} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all">
+                <Save className="w-4 h-4" /> Save Links
+              </button>
+            )}
+          </div>
+
+          {isEditing && (
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Add New Link</h3>
+              
+              <div className="flex flex-col sm:flex-row gap-3 mb-3">
+                <select
+                  value={newPlatform}
+                  onChange={(e) => setNewPlatform(e.target.value)}
+                  className="flex-1 px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  <option value="">Select Platform</option>
+                  {platforms.map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+                <input
+                  type="url"
+                  value={newUrl}
+                  onChange={(e) => setNewUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1 px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                />
+                <button
+                  onClick={addSocialLink}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" /> Add
+                </button>
+              </div>
+
+              {!showCustomInput ? (
+                <button
+                  onClick={() => setShowCustomInput(true)}
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Add custom platform not in list
+                </button>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-3 mt-3">
+                  <input
+                    type="text"
+                    value={customPlatform}
+                    onChange={(e) => setCustomPlatform(e.target.value)}
+                    placeholder="Platform name (e.g., Behance, Dribbble)"
                     className="flex-1 px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  >
-                    <option value="">Select Platform</option>
-                    {platforms.map(p => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
+                  />
                   <input
                     type="url"
-                    value={newUrl}
-                    onChange={(e) => setNewUrl(e.target.value)}
+                    value={customUrl}
+                    onChange={(e) => setCustomUrl(e.target.value)}
                     placeholder="https://..."
                     className="flex-1 px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   />
                   <button
-                    onClick={addSocialLink}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center gap-1"
+                    onClick={addCustomLink}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors"
                   >
-                    <Plus className="w-4 h-4" /> Add
+                    Add Custom
+                  </button>
+                  <button
+                    onClick={() => setShowCustomInput(false)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-xl text-sm font-medium hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
                   </button>
                 </div>
+              )}
+            </div>
+          )}
 
-                {!showCustomInput ? (
-                  <button
-                    onClick={() => setShowCustomInput(true)}
-                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
-                  >
-                    <Plus className="w-3 h-3" /> Add custom platform not in list
-                  </button>
-                ) : (
-                  <div className="flex flex-col sm:flex-row gap-3 mt-3">
-                    <input
-                      type="text"
-                      value={customPlatform}
-                      onChange={(e) => setCustomPlatform(e.target.value)}
-                      placeholder="Platform name (e.g., Behance, Dribbble)"
-                      className="flex-1 px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    />
-                    <input
-                      type="url"
-                      value={customUrl}
-                      onChange={(e) => setCustomUrl(e.target.value)}
-                      placeholder="https://..."
-                      className="flex-1 px-4 py-2 bg-white dark:bg-[#0a0a0f] border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    />
-                    <button
-                      onClick={addCustomLink}
-                      className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors"
+          {socialLinks.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              No social links added yet.
+              {!isEditing && <p className="text-sm mt-1">Click "Edit Links" to add your profiles.</p>}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {socialLinks.map((link) => (
+                <div key={link.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700">
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-900 dark:text-white">{link.platform}</span>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-3 text-sm text-indigo-600 dark:text-indigo-400 hover:underline break-all"
                     >
-                      Add Custom
-                    </button>
+                      {link.url}
+                    </a>
+                  </div>
+                  {isEditing && (
                     <button
-                      onClick={() => setShowCustomInput(false)}
-                      className="px-4 py-2 bg-gray-500 text-white rounded-xl text-sm font-medium hover:bg-gray-600 transition-colors"
+                      onClick={() => removeSocialLink(link.id)}
+                      className="p-1 text-rose-500 hover:text-rose-600 transition-colors"
                     >
-                      Cancel
+                      <Trash2 className="w-4 h-4" />
                     </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {socialLinks.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                No social links added yet.
-                {!isEditing && <p className="text-sm mt-1">Click "Edit Links" to add your profiles.</p>}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {socialLinks.map((link) => (
-                  <div key={link.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700">
-                    <div className="flex-1">
-                      <span className="font-medium text-gray-900 dark:text-white">{link.platform}</span>
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ml-3 text-sm text-indigo-600 dark:text-indigo-400 hover:underline break-all"
-                      >
-                        {link.url}
-                      </a>
-                    </div>
-                    {isEditing && (
-                      <button
-                        onClick={() => removeSocialLink(link.id)}
-                        className="p-1 text-rose-500 hover:text-rose-600 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        </main>
-      </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </main>
 
       {/* Change Password Modal */}
       <AnimatePresence>
@@ -643,7 +645,7 @@ export default function Profile() {
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="relative w-full max-w-md mx-4"
             >
-              <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl p-6 max-h-[85vh] overflow-y-auto">
+              <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <Shield className="w-5 h-5 text-emerald-500" />
@@ -728,6 +730,6 @@ export default function Profile() {
           </div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

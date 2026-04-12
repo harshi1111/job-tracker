@@ -22,7 +22,7 @@ const Iridescence = () => {
     };
 
     const animate = () => {
-      time += 0.005;
+      time += 0.008; // Slightly faster for more vibrancy
       
       const imageData = ctx.getImageData(0, 0, width, height);
       const data = imageData.data;
@@ -31,16 +31,16 @@ const Iridescence = () => {
         for (let y = 0; y < height; y++) {
           const index = (y * width + x) * 4;
           
-          // Create iridescent effect using sine waves
-          const r = Math.sin(x * 0.005 + time) * 128 + 127;
-          const g = Math.sin(y * 0.005 + time + 2) * 128 + 127;
-          const b = Math.sin((x + y) * 0.005 + time + 4) * 128 + 127;
+          // Brighter iridescent effect using sine waves
+          const r = Math.sin(x * 0.006 + time) * 155 + 100;
+          const g = Math.sin(y * 0.006 + time + 2.1) * 155 + 100;
+          const b = Math.sin((x + y) * 0.006 + time + 4.2) * 155 + 100;
           
-          // Subtle pastel tones
-          data[index] = r * 0.6 + 100;     // R
-          data[index + 1] = g * 0.5 + 120; // G
-          data[index + 2] = b * 0.7 + 100; // B
-          data[index + 3] = 15; // Very low opacity (almost transparent)
+          // Brighter pastel tones for light mode (higher opacity)
+          data[index] = r * 0.5 + 80;      // R
+          data[index + 1] = g * 0.4 + 100; // G  
+          data[index + 2] = b * 0.6 + 80;  // B
+          data[index + 3] = 35; // Higher opacity - more visible in light mode
         }
       }
       
@@ -62,7 +62,7 @@ const Iridescence = () => {
     <canvas 
       ref={canvasRef} 
       className="w-full h-full"
-      style={{ position: 'absolute', top: 0, left: 0 }}
+      style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
     />
   );
 };

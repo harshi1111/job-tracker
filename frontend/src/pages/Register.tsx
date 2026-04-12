@@ -174,7 +174,7 @@ export default function Register() {
 
             {/* Right Side - Register Card - SCROLLABLE */}
             <div className="flex-1 w-full max-w-md mx-auto lg:mx-0" style={{ pointerEvents: 'auto' }}>
-              <div className="relative rounded-2xl p-8 bg-[#1a1a2e]/50 backdrop-blur-sm border border-gray-700 shadow-xl max-h-[85vh] overflow-y-auto">
+              <div className="relative rounded-2xl p-8 bg-[#1a1a2e]/50 backdrop-blur-sm border border-gray-700 shadow-xl max-h-[85vh] overflow-y-auto custom-scrollbar">
                 
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-cyan-500 to-blue-500 rounded-2xl opacity-20 blur-xl" />
 

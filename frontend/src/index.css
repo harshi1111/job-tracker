@@ -2,15 +2,209 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Dark mode is default, light mode overrides */
-.light {
-  color-scheme: light;
-}
-
+/* Dark mode is default */
 body {
   @apply bg-gray-900 text-white;
 }
 
+/* ============================================
+   LIGHT MODE - VIBRANT & ALIVE (NOT BLANK)
+   ============================================ */
 .light body {
-  @apply bg-gray-50 text-gray-900;
+  @apply bg-gradient-to-br from-indigo-50 via-white to-cyan-50 text-gray-900;
+}
+
+/* Light mode container background */
+.light .bg-light-vibrant {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 50%, #ecfdf5 100%);
+}
+
+/* Light mode cards - soft with subtle glow */
+.light .card,
+.light .bg-white\/90,
+.light .bg-white\/80 {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.light .card:hover,
+.light .bg-white\/90:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.08);
+}
+
+/* Light mode inputs - clean with subtle border */
+.light input,
+.light textarea,
+.light select {
+  @apply bg-white border-gray-200 text-gray-900 placeholder-gray-400;
+  border-width: 1.5px;
+  transition: all 0.2s ease;
+}
+
+.light input:focus,
+.light textarea:focus,
+.light select:focus {
+  @apply border-indigo-400 ring-2 ring-indigo-200;
+  border-width: 1.5px;
+}
+
+/* Light mode buttons */
+.light button.bg-gray-100 {
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-700;
+  border: 1px solid #e5e7eb;
+}
+
+/* Light mode borders - more visible */
+.light .border-custom,
+.light .border-gray-200,
+.light .border-gray-300 {
+  border-color: #e2e8f0 !important;
+  border-width: 1.5px !important;
+}
+
+.light .border-indigo-200 {
+  border-color: #c7d2fe !important;
+  border-width: 1.5px !important;
+}
+
+/* Light mode text improvements */
+.light .text-secondary {
+  @apply text-gray-600;
+}
+
+.light .text-muted {
+  @apply text-gray-500;
+}
+
+/* Light mode - Subtle grid background for some sections */
+.light .grid-bg-subtle {
+  background-image: 
+    linear-gradient(#e2e8f0 1px, transparent 1px),
+    linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Custom thin scrollbar for Register page and modals */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #4f46e5 #1f2937;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #4f46e5;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6366f1;
+}
+
+/* Light mode scrollbar */
+.light .custom-scrollbar {
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.light .custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.light .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+.light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Global scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-800 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded-full hover:bg-gray-500;
+}
+
+.light ::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 hover:bg-gray-400;
+}
+
+/* Light mode - Vibrant gradient text */
+.light .gradient-text {
+  background: linear-gradient(135deg, #4f46e5, #06b6d4, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Light mode - Subtle floating animation for backgrounds */
+@keyframes float-bg {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(10px, -10px); }
+}
+
+.light .floating-bg {
+  animation: float-bg 20s ease-in-out infinite;
+}
+
+/* ============================================
+   PROFILE PAGE - ANIMATED GRID BACKGROUND ONLY
+   ============================================ */
+.profile-grid-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* Light mode grid - more visible */
+.light .profile-grid-bg {
+  background-image: 
+    linear-gradient(rgba(99, 102, 241, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.08) 1px, transparent 1px);
+}
+
+/* Dark mode grid - subtle */
+.dark .profile-grid-bg {
+  background-image: 
+    linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
 }
