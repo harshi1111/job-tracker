@@ -11,12 +11,8 @@ body {
    LIGHT MODE - VIBRANT & ALIVE (NOT BLANK)
    ============================================ */
 .light body {
-  @apply bg-gradient-to-br from-indigo-50 via-white to-cyan-50 text-gray-900;
-}
-
-/* Light mode container background */
-.light .bg-light-vibrant {
   background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 50%, #ecfdf5 100%);
+  color: #111827;
 }
 
 /* Light mode cards - soft with subtle glow */
@@ -39,22 +35,18 @@ body {
 .light input,
 .light textarea,
 .light select {
-  @apply bg-white border-gray-200 text-gray-900 placeholder-gray-400;
-  border-width: 1.5px;
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  color: #111827;
   transition: all 0.2s ease;
 }
 
 .light input:focus,
 .light textarea:focus,
 .light select:focus {
-  @apply border-indigo-400 ring-2 ring-indigo-200;
-  border-width: 1.5px;
-}
-
-/* Light mode buttons */
-.light button.bg-gray-100 {
-  @apply bg-gray-100 hover:bg-gray-200 text-gray-700;
-  border: 1px solid #e5e7eb;
+  border-color: #818cf8;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
 }
 
 /* Light mode borders - more visible */
@@ -72,19 +64,11 @@ body {
 
 /* Light mode text improvements */
 .light .text-secondary {
-  @apply text-gray-600;
+  color: #4b5563;
 }
 
 .light .text-muted {
-  @apply text-gray-500;
-}
-
-/* Light mode - Subtle grid background for some sections */
-.light .grid-bg-subtle {
-  background-image: 
-    linear-gradient(#e2e8f0 1px, transparent 1px),
-    linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
-  background-size: 40px 40px;
+  color: #6b7280;
 }
 
 /* Custom thin scrollbar for Register page and modals */
@@ -135,19 +119,29 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-800 rounded-full;
+  background: #1f2937;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-600 rounded-full hover:bg-gray-500;
+  background: #4b5563;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
 }
 
 .light ::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+  background: #f1f5f9;
 }
 
 .light ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 hover:bg-gray-400;
+  background: #cbd5e1;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Light mode - Vibrant gradient text */
@@ -156,16 +150,6 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-
-/* Light mode - Subtle floating animation for backgrounds */
-@keyframes float-bg {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(10px, -10px); }
-}
-
-.light .floating-bg {
-  animation: float-bg 20s ease-in-out infinite;
 }
 
 /* ============================================
