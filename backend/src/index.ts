@@ -7,6 +7,7 @@ import applicationRoutes from './routes/application.routes';
 import aiRoutes from './routes/ai.routes';
 import statsRoutes from './routes/stats.routes';
 import userRoutes from './routes/user.routes';
+import resumeRoutes from './routes/resume';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/resumes', resumeRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

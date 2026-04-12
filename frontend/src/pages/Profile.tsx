@@ -7,7 +7,8 @@ import { getApplications } from '../services/application.service';
 import api from '../services/api';
 import { 
   User, Mail, Calendar, Briefcase, Award, TrendingUp, 
-  LogOut, Camera, Save, X, Plus, Trash2, Key, AlertCircle, Shield
+  LogOut, Camera, Save, X, Plus, Trash2, Key, AlertCircle, Shield,
+  FileText, Download, Edit2
 } from 'lucide-react';
 
 export default function Profile() {
@@ -44,6 +45,17 @@ export default function Profile() {
   const [securityError, setSecurityError] = useState('');
   const [securitySuccess, setSecuritySuccess] = useState('');
   
+  // Resume States
+  const [resumes, setResumes] = useState<any[]>([]);
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [resumeTitle, setResumeTitle] = useState('');
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [uploadingResume, setUploadingResume] = useState(false);
+  const [resumeError, setResumeError] = useState('');
+  const [resumeSuccess, setResumeSuccess] = useState('');
+  const [editingResumeId, setEditingResumeId] = useState<string | null>(null);
+  const [editingResumeTitle, setEditingResumeTitle] = useState('');
+  
   const [stats, setStats] = useState({
     total: 0,
     applied: 0,
@@ -65,6 +77,7 @@ export default function Profile() {
     fetchApplications();
     loadProfilePic();
     loadSocialLinks();
+    fetchResumes();
   }, []);
 
   const fetchApplications = async () => {
@@ -79,6 +92,78 @@ export default function Profile() {
       setStats({ total, applied, interview, offer, acceptanceRate });
     } catch (error) {
       console.error('Failed to fetch stats:', error);
+    }
+  };
+
+  const fetchResumes = async () => {
+    try {
+      const response = await api.get('/resumes');
+      setResumes(response.data.resumes);
+    } catch (error) {
+      console.error('Failed to fetch resumes:', error);
+    }
+  };
+
+  const handleUploadResume = async () => {
+    if (!resumeFile) {
+      setResumeError('Please select a file');
+      return;
+    }
+    if (!resumeTitle.trim()) {
+      setResumeError('Please enter a title');
+      return;
+    }
+
+    setUploadingResume(true);
+    setResumeError('');
+
+    const formData = new FormData();
+    formData.append('resume', resumeFile);
+    formData.append('title', resumeTitle);
+
+    try {
+      await api.post('/resumes/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setResumeSuccess('Resume uploaded successfully!');
+      setResumeTitle('');
+      setResumeFile(null);
+      fetchResumes();
+      setTimeout(() => {
+        setShowResumeModal(false);
+        setResumeSuccess('');
+      }, 1500);
+    } catch (err: any) {
+      setResumeError(err.response?.data?.error || 'Failed to upload resume');
+    } finally {
+      setUploadingResume(false);
+    }
+  };
+
+  const handleDeleteResume = async (id: string) => {
+    if (confirm('Are you sure you want to delete this resume?')) {
+      try {
+        await api.delete(`/resumes/${id}`);
+        fetchResumes();
+      } catch (error) {
+        console.error('Failed to delete resume:', error);
+      }
+    }
+  };
+
+  const handleDownloadResume = (resume: any) => {
+    window.open(resume.fileUrl, '_blank');
+  };
+
+  const handleEditResumeTitle = async (id: string) => {
+    if (!editingResumeTitle.trim()) return;
+    try {
+      await api.put(`/resumes/${id}`, { title: editingResumeTitle });
+      setEditingResumeId(null);
+      setEditingResumeTitle('');
+      fetchResumes();
+    } catch (error) {
+      console.error('Failed to update title:', error);
     }
   };
 
@@ -230,10 +315,8 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0f] dark:to-[#12121a] transition-colors duration-300 relative">
-      {/* Animated Grid Background */}
-      <div className="profile-grid-bg"></div>
-      
-     
+      {/* Animated Grid Background - More Visible */}
+      <div className="profile-grid-bg" style={{ opacity: 0.6 }}></div>
       
       <header className="sticky top-0 z-40 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0f]/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
@@ -352,7 +435,7 @@ export default function Profile() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6"
+          className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6 mb-6"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Social Links</h2>
@@ -466,7 +549,199 @@ export default function Profile() {
             </div>
           )}
         </motion.div>
+
+        {/* Resume Storage Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white/90 dark:bg-[#1a1a2e]/90 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-indigo-500" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">My Resumes</h2>
+              <span className="text-xs text-gray-500">({resumes.length}/6)</span>
+            </div>
+            {resumes.length < 6 && (
+              <button
+                onClick={() => setShowResumeModal(true)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:shadow-lg transition-all"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Upload Resume
+              </button>
+            )}
+          </div>
+
+          {resumes.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p className="text-sm">No resumes uploaded yet.</p>
+              <p className="text-xs mt-1">Upload your resumes (PDF, DOC) to access them anytime.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {resumes.map((resume) => (
+                <div
+                  key={resume._id}
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <FileText className="w-5 h-5 text-indigo-500" />
+                    <div className="flex-1">
+                      {editingResumeId === resume._id ? (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={editingResumeTitle}
+                            onChange={(e) => setEditingResumeTitle(e.target.value)}
+                            className="px-2 py-1 bg-white dark:bg-[#0a0a0f] border border-gray-300 dark:border-gray-600 rounded-lg text-sm"
+                            autoFocus
+                          />
+                          <button
+                            onClick={() => handleEditResumeTitle(resume._id)}
+                            className="text-xs bg-green-500 text-white px-2 py-1 rounded"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setEditingResumeId(null)}
+                            className="text-xs bg-gray-500 text-white px-2 py-1 rounded"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{resume.title}</p>
+                          <p className="text-xs text-gray-500">{resume.fileName}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleDownloadResume(resume)}
+                      className="p-1.5 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-lg transition-colors"
+                      title="Download"
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingResumeId(resume._id);
+                        setEditingResumeTitle(resume.title);
+                      }}
+                      className="p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      title="Edit Title"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteResume(resume._id)}
+                      className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
       </main>
+
+      {/* Upload Resume Modal */}
+      <AnimatePresence>
+        {showResumeModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center">
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+              onClick={() => setShowResumeModal(false)} 
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-md mx-4"
+            >
+              <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-indigo-500" />
+                    Upload Resume
+                  </h2>
+                  <button 
+                    onClick={() => setShowResumeModal(false)} 
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {resumeSuccess && (
+                  <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-600 dark:text-emerald-400 text-sm">
+                    {resumeSuccess}
+                  </div>
+                )}
+
+                {resumeError && (
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
+                    {resumeError}
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Resume Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={resumeTitle}
+                      onChange={(e) => setResumeTitle(e.target.value)}
+                      placeholder="e.g., Frontend Resume, Full Stack Resume"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0a0a0f] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      File (PDF or DOC)
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0a0a0f] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Max 5MB. PDF or Word documents only.</p>
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowResumeModal(false)}
+                      className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleUploadResume}
+                      disabled={uploadingResume}
+                      className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                    >
+                      {uploadingResume ? 'Uploading...' : 'Upload'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Change Password Modal */}
       <AnimatePresence>

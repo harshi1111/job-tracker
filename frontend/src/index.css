@@ -189,6 +189,6 @@ body {
 /* Dark mode grid - subtle */
 .dark .profile-grid-bg {
   background-image: 
-    linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(99, 102, 241, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.35) 1px, transparent 1px);
 }

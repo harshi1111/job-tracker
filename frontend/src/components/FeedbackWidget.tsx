@@ -227,7 +227,7 @@ export default function FeedbackWidget({ theme = 'dark' }: FeedbackWidgetProps) 
                         href="mailto:support@pathgrid.com" 
                         className="text-indigo-500 hover:text-indigo-600 text-sm font-medium"
                       >
-                        Contact support@pathgrid.com
+                        Contact pathgrid@gmail.com
                       </a>
                     </div>
                   </div>
