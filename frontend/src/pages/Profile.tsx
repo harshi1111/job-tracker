@@ -7,7 +7,7 @@ import { getApplications } from '../services/application.service';
 import api from '../services/api';
 import { 
   User, Mail, Calendar, Briefcase, Award, TrendingUp, 
-  LogOut, Camera, Save, X, Plus, Trash2, Key, AlertCircle
+  LogOut, Camera, Save, X, Plus, Trash2, Key, AlertCircle, Shield
 } from 'lucide-react';
 
 export default function Profile() {
@@ -35,6 +35,14 @@ export default function Profile() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  
+  // Security Question States
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [securityQuestion, setSecurityQuestion] = useState('');
+  const [securityAnswer, setSecurityAnswer] = useState('');
+  const [settingSecurity, setSettingSecurity] = useState(false);
+  const [securityError, setSecurityError] = useState('');
+  const [securitySuccess, setSecuritySuccess] = useState('');
   
   const [stats, setStats] = useState({
     total: 0,
@@ -185,6 +193,34 @@ export default function Profile() {
     }
   };
 
+  const handleSetSecurityQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSecurityError('');
+    setSecuritySuccess('');
+    
+    if (!securityQuestion || !securityAnswer) {
+      setSecurityError('Please fill both fields');
+      return;
+    }
+    
+    setSettingSecurity(true);
+    
+    try {
+      await api.post('/auth/set-security-question', { securityQuestion, securityAnswer });
+      setSecuritySuccess('Security question set successfully!');
+      setTimeout(() => {
+        setShowSecurityModal(false);
+        setSecuritySuccess('');
+        setSecurityQuestion('');
+        setSecurityAnswer('');
+      }, 2000);
+    } catch (err: any) {
+      setSecurityError(err.response?.data?.error || 'Failed to set security question');
+    } finally {
+      setSettingSecurity(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -260,6 +296,12 @@ export default function Profile() {
                     className="text-sm text-rose-500 hover:text-rose-600 flex items-center gap-1"
                   >
                     <Trash2 className="w-3 h-3" /> Delete Account
+                  </button>
+                  <button
+                    onClick={() => setShowSecurityModal(true)}
+                    className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                  >
+                    <Shield className="w-3 h-3" /> Set Security Question
                   </button>
                 </div>
               </div>
@@ -424,7 +466,7 @@ export default function Profile() {
         </main>
       </div>
 
-      {/* Change Password Modal - No Current Password */}
+      {/* Change Password Modal */}
       <AnimatePresence>
         {showPasswordModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center">
@@ -580,6 +622,107 @@ export default function Profile() {
                     </button>
                   </div>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Security Question Modal */}
+      <AnimatePresence>
+        {showSecurityModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center">
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+              onClick={() => setShowSecurityModal(false)} 
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-md mx-4"
+            >
+              <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl p-6 max-h-[85vh] overflow-y-auto">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-emerald-500" />
+                    Set Security Question
+                  </h2>
+                  <button 
+                    onClick={() => setShowSecurityModal(false)} 
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  This will help you reset your password if you forget it.
+                </p>
+
+                {securitySuccess && (
+                  <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-600 dark:text-emerald-400 text-sm">
+                    {securitySuccess}
+                  </div>
+                )}
+
+                {securityError && (
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
+                    {securityError}
+                  </div>
+                )}
+
+                <form onSubmit={handleSetSecurityQuestion} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Security Question
+                    </label>
+                    <select
+                      value={securityQuestion}
+                      onChange={(e) => setSecurityQuestion(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0a0a0f] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      required
+                    >
+                      <option value="">Select a question</option>
+                      <option value="What was your first pet's name?">What was your first pet's name?</option>
+                      <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                      <option value="What city were you born in?">What city were you born in?</option>
+                      <option value="What was your first school?">What was your first school?</option>
+                      <option value="What is your favorite book?">What is your favorite book?</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      Answer
+                    </label>
+                    <input
+                      type="text"
+                      value={securityAnswer}
+                      onChange={(e) => setSecurityAnswer(e.target.value)}
+                      placeholder="Your answer (not case sensitive)"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0a0a0f] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      required
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Not case sensitive</p>
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowSecurityModal(false)}
+                      className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={settingSecurity}
+                      className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                    >
+                      {settingSecurity ? 'Saving...' : 'Save Security Question'}
+                    </button>
+                  </div>
+                </form>
               </div>
             </motion.div>
           </div>
