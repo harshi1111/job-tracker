@@ -15,7 +15,7 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
   const steps = [
     {
       title: 'Welcome to PATHGRID',
-      content: 'Your AI-powered job tracking companion. Let us walk you through the key features.',
+      content: 'Your AI-powered job tracking companion. Let us walk you through all the features.',
       target: null,
       position: 'center',
     },
@@ -74,9 +74,33 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
       position: 'bottom',
     },
     {
+      title: 'Help & Support',
+      content: 'Need help? Click the question mark button on Dashboard or use the floating chat button at the bottom right of any page for FAQs and feedback.',
+      target: '.fixed.bottom-6.right-6',
+      position: 'top',
+    },
+    {
       title: 'Your Profile',
-      content: 'Click your avatar to access Profile settings. Here you can change password, set security question, manage social links, and store your resumes.',
+      content: 'Click your avatar to access Profile settings. This is where you manage your account.',
       target: '.w-8.h-8.rounded-lg',
+      position: 'bottom',
+    },
+    {
+      title: 'Change Password',
+      content: 'In Profile, click "Change Password" to update your password anytime.',
+      target: '.text-sm.text-indigo-600:has(.w-3.h-3)',
+      position: 'bottom',
+    },
+    {
+      title: 'Security Question',
+      content: 'Set a security question to recover your password if you forget it. This is optional but recommended.',
+      target: '.text-sm.text-emerald-600:has(.w-3.h-3)',
+      position: 'bottom',
+    },
+    {
+      title: 'Social Links',
+      content: 'Add your GitHub, LinkedIn, Twitter, or custom social links to showcase your professional presence.',
+      target: '.text-lg.font-semibold.text-gray-900',
       position: 'bottom',
     },
     {
@@ -86,9 +110,15 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
       position: 'top',
     },
     {
+      title: 'Forgot Password',
+      content: 'On the Login page, click "Forgot Password?" and answer your security question to reset your password.',
+      target: null,
+      position: 'center',
+    },
+    {
       title: 'Sign Out',
       content: 'Click the Logout button (red icon) to securely sign out of your account. Your data is always saved.',
-      target: '.p-2.rounded-xl.bg-gray-100:has(.w-5.h-5.text-rose-600)',
+      target: '.p-2.rounded-xl.bg-gray-100',
       position: 'bottom',
     },
   ];
@@ -128,8 +158,25 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
         }
       }
       
-      // For Profile avatar (step 10)
+      // For Help/Feedback widget (step 10)
       if (step === 10) {
+        const widgetButton = document.querySelector('.fixed.bottom-6.right-6') as HTMLElement;
+        if (widgetButton) {
+          document.querySelectorAll('.tour-highlight').forEach(el => {
+            el.classList.remove('tour-highlight');
+          });
+          widgetButton.classList.add('tour-highlight');
+          widgetButton.style.position = 'relative';
+          widgetButton.style.zIndex = '1001';
+          const rect = widgetButton.getBoundingClientRect();
+          setTargetRect(rect);
+          widgetButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      }
+      
+      // For Profile avatar (step 11)
+      if (step === 11) {
         const avatarElement = document.querySelector('.w-8.h-8.rounded-lg') as HTMLElement;
         if (avatarElement) {
           document.querySelectorAll('.tour-highlight').forEach(el => {
@@ -145,8 +192,8 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
         }
       }
       
-      // For Resume Storage (step 11)
-      if (step === 11) {
+      // For Resume Storage (step 15)
+      if (step === 15) {
         const resumeSection = document.querySelector('.bg-white\\/90.dark\\:bg-\\[\\#1a1a2e\\]\\/90.rounded-2xl.border.border-gray-200.dark\\:border-gray-700.p-6:last-child') as HTMLElement;
         if (resumeSection) {
           document.querySelectorAll('.tour-highlight').forEach(el => {
@@ -162,8 +209,8 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
         }
       }
       
-      // For Sign Out button (step 12)
-      if (step === 12) {
+      // For Sign Out button (step 17)
+      if (step === 17) {
         const signOutButton = document.querySelector('.p-2.rounded-xl.bg-gray-100') as HTMLElement;
         if (signOutButton) {
           document.querySelectorAll('.tour-highlight').forEach(el => {
@@ -217,10 +264,12 @@ export default function KanbanTour({ showTour, setShowTour }: KanbanTourProps) {
           const allContainers = document.querySelectorAll('.h-full.border.rounded-xl.overflow-hidden');
           targetElement = allContainers[1] as HTMLElement;
         } else if (step === 10) {
-          targetElement = document.querySelector('.w-8.h-8.rounded-lg') as HTMLElement;
+          targetElement = document.querySelector('.fixed.bottom-6.right-6') as HTMLElement;
         } else if (step === 11) {
+          targetElement = document.querySelector('.w-8.h-8.rounded-lg') as HTMLElement;
+        } else if (step === 15) {
           targetElement = document.querySelector('.bg-white\\/90.dark\\:bg-\\[\\#1a1a2e\\]\\/90.rounded-2xl.border.border-gray-200.dark\\:border-gray-700.p-6:last-child') as HTMLElement;
-        } else if (step === 12) {
+        } else if (step === 17) {
           targetElement = document.querySelector('.p-2.rounded-xl.bg-gray-100') as HTMLElement;
         } else if (steps[step].target) {
           targetElement = document.querySelector(steps[step].target!);
