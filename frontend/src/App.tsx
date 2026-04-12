@@ -5,7 +5,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import { getCurrentUser } from './services/auth.service';
-
+import FeedbackWidget from './components/FeedbackWidget';  
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const user = getCurrentUser();
@@ -50,6 +50,9 @@ export default function App() {
           </PrivateRoute>
         } />
       </Routes>
+      
+      {/* Feedback Widget - shows on all pages */}
+      <FeedbackWidget theme="dark" />  {/* ← ADD THIS LINE */}
     </BrowserRouter>
   );
 }
