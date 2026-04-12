@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import { getCurrentUser } from './services/auth.service';
 
+
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const user = getCurrentUser();
   return user ? children : <Navigate to="/login" />;

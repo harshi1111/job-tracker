@@ -94,7 +94,6 @@ export default function Login() {
     }
   };
 
-  // ✅ FIXED: Removed the empty newPassword being sent
   const handleVerifyAnswer = async () => {
     if (!securityAnswer) {
       setResetError('Please answer the security question');
@@ -105,10 +104,10 @@ export default function Login() {
     setResetError('');
     
     try {
-      // Only send email and securityAnswer - NO newPassword here
       await api.post('/auth/verify-answer', { 
         email: resetEmail, 
-        securityAnswer
+        securityAnswer,
+        newPassword: '' // We'll send password in next step
       });
       setResetStep('newPassword');
     } catch (err: any) {
@@ -138,7 +137,6 @@ export default function Login() {
     setResetError('');
     
     try {
-      // This is where we actually send the new password
       await api.post('/auth/verify-answer', { 
         email: resetEmail, 
         securityAnswer,

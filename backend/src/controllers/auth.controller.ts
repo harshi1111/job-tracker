@@ -153,12 +153,9 @@ export const verifySecurityAnswer = async (req: Request, res: Response) => {
   try {
     const { email, securityAnswer, newPassword } = req.body;
 
-    if (!email || !securityAnswer || !newPassword) {
-      return res.status(400).json({ error: 'All fields are required' });
-    }
-
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    // Only email and securityAnswer are required. newPassword is optional
+    if (!email || !securityAnswer) {
+      return res.status(400).json({ error: 'Email and security answer are required' });
     }
 
     const user = await User.findOne({ email });
@@ -177,12 +174,20 @@ export const verifySecurityAnswer = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Incorrect security answer' });
     }
 
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await user.save();
+    // If newPassword is provided, update it
+    if (newPassword) {
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+      }
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedPassword;
+      await user.save();
+      return res.json({ message: 'Password reset successfully' });
+    }
 
-    res.json({ message: 'Password reset successfully' });
+    // No newPassword provided - just verification successful
+    return res.json({ message: 'Answer verified successfully' });
+
   } catch (error) {
     console.error('Verify answer error:', error);
     res.status(500).json({ error: 'Failed to reset password' });
