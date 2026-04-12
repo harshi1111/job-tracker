@@ -543,6 +543,11 @@ export default function Dashboard() {
         )}
 
         <div ref={kanbanRef} className="mt-2">
+          <div className="block md:hidden mb-3 text-center">
+            <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 inline-block px-3 py-1.5 rounded-full">
+            💡 Tap any card to edit | For drag & drop, use desktop
+            </p>
+          </div>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">Track your jobs here</h2>
