@@ -12,6 +12,7 @@ const application_routes_1 = __importDefault(require("./routes/application.route
 const ai_routes_1 = __importDefault(require("./routes/ai.routes"));
 const stats_routes_1 = __importDefault(require("./routes/stats.routes"));
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
+const resume_1 = __importDefault(require("./routes/resume"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
@@ -27,6 +28,7 @@ app.use('/api/applications', application_routes_1.default);
 app.use('/api/ai', ai_routes_1.default);
 app.use('/api/stats', stats_routes_1.default);
 app.use('/api/user', user_routes_1.default);
+app.use('/api/resumes', resume_1.default);
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });

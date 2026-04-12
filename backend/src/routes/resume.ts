@@ -13,14 +13,14 @@ const router = express.Router();
 // Configure multer for memory storage (we'll send to cloudinary or MongoDB)
 const storage = multer.memoryStorage();
 const upload = multer({
-  storage,
+  storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req: any, file: any, cb: any) => {
     const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF and DOC files are allowed') as any, false);
+      cb(new Error('Only PDF and DOC files are allowed'), false);
     }
   },
 });

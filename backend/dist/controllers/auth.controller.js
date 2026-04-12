@@ -131,11 +131,9 @@ exports.initiatePasswordReset = initiatePasswordReset;
 const verifySecurityAnswer = async (req, res) => {
     try {
         const { email, securityAnswer, newPassword } = req.body;
-        if (!email || !securityAnswer || !newPassword) {
-            return res.status(400).json({ error: 'All fields are required' });
-        }
-        if (newPassword.length < 6) {
-            return res.status(400).json({ error: 'Password must be at least 6 characters' });
+        // Only email and securityAnswer are required. newPassword is optional
+        if (!email || !securityAnswer) {
+            return res.status(400).json({ error: 'Email and security answer are required' });
         }
         const user = await User_1.default.findOne({ email });
         if (!user) {
@@ -150,11 +148,15 @@ const verifySecurityAnswer = async (req, res) => {
         if (!isValid) {
             return res.status(401).json({ error: 'Incorrect security answer' });
         }
-        // Hash new password
-        const hashedPassword = await bcryptjs_1.default.hash(newPassword, 10);
-        user.password = hashedPassword;
-        await user.save();
-        res.json({ message: 'Password reset successfully' });
+        // If newPassword is provided, update it
+        if (newPassword) {
+            const hashedPassword = await bcryptjs_1.default.hash(newPassword, 10);
+            user.password = hashedPassword;
+            await user.save();
+            return res.json({ message: 'Password reset successfully' });
+        }
+        // No newPassword provided - just verification successful
+        return res.json({ message: 'Answer verified successfully' });
     }
     catch (error) {
         console.error('Verify answer error:', error);
