@@ -6,7 +6,7 @@ import { AuthRequest } from '../middleware/auth';
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, securityQuestion, securityAnswer } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -17,12 +17,22 @@ export const register = async (req: Request, res: Response) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const user = await User.create({
+    // Create user data object
+    const userData: any = {
       email,
       password: hashedPassword,
-      name
-    });
+      name,
+    };
+
+    // Add security question if provided
+    if (securityQuestion && securityAnswer) {
+      const hashedSecurityAnswer = await bcrypt.hash(securityAnswer.toLowerCase().trim(), 10);
+      userData.securityQuestion = securityQuestion;
+      userData.securityAnswer = hashedSecurityAnswer;
+    }
+
+    // Create user
+    const user = await User.create(userData);
 
     // Generate token
     const token = jwt.sign(
@@ -124,7 +134,7 @@ export const initiatePasswordReset = async (req: Request, res: Response) => {
     }
 
     if (!user.securityQuestion) {
-      return res.status(400).json({ error: 'Security question not set. Please contact support.' });
+      return res.status(400).json({ error: 'Security question not set. Please set one in your profile settings.' });
     }
 
     // Return the security question (not the answer!)

@@ -9,7 +9,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
 const register = async (req, res) => {
     try {
-        const { email, password, name } = req.body;
+        const { email, password, name, securityQuestion, securityAnswer } = req.body;
         // Check if user exists
         const existingUser = await User_1.default.findOne({ email });
         if (existingUser) {
@@ -17,12 +17,20 @@ const register = async (req, res) => {
         }
         // Hash password
         const hashedPassword = await bcryptjs_1.default.hash(password, 10);
-        // Create user
-        const user = await User_1.default.create({
+        // Create user data object
+        const userData = {
             email,
             password: hashedPassword,
-            name
-        });
+            name,
+        };
+        // Add security question if provided
+        if (securityQuestion && securityAnswer) {
+            const hashedSecurityAnswer = await bcryptjs_1.default.hash(securityAnswer.toLowerCase().trim(), 10);
+            userData.securityQuestion = securityQuestion;
+            userData.securityAnswer = hashedSecurityAnswer;
+        }
+        // Create user
+        const user = await User_1.default.create(userData);
         // Generate token
         const token = jsonwebtoken_1.default.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.status(201).json({
@@ -105,7 +113,7 @@ const initiatePasswordReset = async (req, res) => {
             return res.status(404).json({ error: 'No account found with this email' });
         }
         if (!user.securityQuestion) {
-            return res.status(400).json({ error: 'Security question not set. Please contact support.' });
+            return res.status(400).json({ error: 'Security question not set. Please set one in your profile settings.' });
         }
         // Return the security question (not the answer!)
         res.json({

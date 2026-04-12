@@ -15,6 +15,8 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
+  securityQuestion: string;
+  securityAnswer: string;
 }
 
 export const register = async (data: RegisterData) => {
