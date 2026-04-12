@@ -134,9 +134,10 @@ PATHGRID transforms chaotic job searching into a **streamlined**, **intelligent 
 <br>
 
 - **Interactive walkthrough** for first-time users
-- Highlights key features: Stats, Timeline, Reminders, Kanban, Search, Dark Mode
+- Highlights all features: Stats, Timeline, Reminders, Kanban, Search, Dark Mode, Profile, Resume Storage, Security Question, Change Password, Social Links
 - **Auto-starts** for new users
 - Manual trigger via **Help button (?)**
+- **Cross-page navigation** - Tour continues on Profile page
 - Saves completion status in localStorage
 
 </details>
@@ -178,10 +179,40 @@ PATHGRID transforms chaotic job searching into a **streamlined**, **intelligent 
 
 - **Avatar Upload** : Upload custom profile picture (supports JPG, PNG)
 - **Social Links** : Add GitHub, LinkedIn, Twitter, and custom platforms
+- **Resume Storage** : Upload up to 6 resumes (PDF/DOC) for different roles
+  - Download resumes anytime
+  - Edit resume titles
+  - Delete old resumes
+  - Cloud storage included
 - **Application Stats** : View total applications, interviews, offers, and acceptance rate
 - **Change Password** : Securely update your password
+- **Security Question** : Set security question for password recovery
 - **Delete Account** : Permanent account deletion with "DELETE" confirmation
 - **Data Persistence** : All profile data saved locally and synced with backend
+
+</details>
+
+<details>
+<summary><b>🔐 Forgot Password & Security Question</b> — <i>Click to expand</i></summary>
+<br>
+
+- **Security Question Setup**: Users can set a security question in their Profile
+- **Password Recovery**: Reset password by answering security question
+- **Case-insensitive answer matching** for user convenience
+- **Optional feature** - Users can skip or set later
+- **Secure storage**: Answers are hashed using bcrypt
+
+</details>
+
+<details>
+<summary><b>💬 Feedback & Help Widget</b> — <i>Click to expand</i></summary>
+<br>
+
+- **Floating chat button** visible on all pages
+- **Feedback form** to send suggestions/bug reports
+- **FAQ section** with common questions
+- **Contact support** via email
+- **Modal popup** with smooth animations
 
 </details>
 
@@ -322,6 +353,13 @@ VITE_API_URL=http://localhost:5001/api
 | GET | `/api/stats` | Get global stats |
 | PUT | `/api/user/password` | Update user password |
 | DELETE | `/api/user/account` | Delete user account and all data |
+| POST | `/api/auth/initiate-reset` | Initiate password reset with email |
+| POST | `/api/auth/verify-answer` | Verify security answer and reset password |
+| POST | `/api/auth/set-security-question` | Set security question for user |
+| GET | `/api/resumes` | Get user's uploaded resumes |
+| POST | `/api/resumes/upload` | Upload a resume file |
+| PUT | `/api/resumes/:id` | Update resume title |
+| DELETE | `/api/resumes/:id` | Delete a resume |
 
 ## ✦ Decisions & Trade-offs
 
@@ -344,6 +382,8 @@ VITE_API_URL=http://localhost:5001/api
   email: string (unique)
   password: string (hashed)
   name: string
+  securityQuestion?: string   
+  securityAnswer?: string     
   createdAt: Date
 }
 ```
